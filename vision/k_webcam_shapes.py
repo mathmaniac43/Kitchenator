@@ -1,25 +1,14 @@
-# USAGE
-# python detect_shapes.py --image shapes_and_colors.png
-
-# import the necessary packages
-from pyimagesearch.shapedetector import ShapeDetector
 import argparse
-import imutils
 import cv2
+import imutils
+import math
 
-import time
-
-# construct the argument parse and parse the arguments
-#ap = argparse.ArgumentParser()
-#ap.add_argument("-i", "--image", required=True,
-#	help="path to the input image")
-#args = vars(ap.parse_args())
+from pyimagesearch.shapedetector import ShapeDetector
 
 camera = cv2.VideoCapture(0)
 camera.set(cv2.cv.CV_CAP_PROP_FPS, 2)
 camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,  640)
 camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 480)
-#time.sleep(2.5)
 
 sd = ShapeDetector()
 while True:
@@ -30,57 +19,64 @@ while True:
     (grabbed, image) = camera.read()
     if not grabbed:
         break
+        
+    image = cv2.flip(image, 1)
     
-    resized = imutils.resize(image, width=500)
-    #cv2.imshow("testing", resized)
+    resized = image
+    ratio = 1
+    #resized = imutils.resize(image, width=500)
+    #ratio = image.shape[0] / float(resized.shape[0])
     
-    ratio = image.shape[0] / float(resized.shape[0])
-    
-    # convert the resized image to grayscale, blur it slightly,
-    # and threshold it
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("gray", gray)
+    #cv2.imshow("gray", gray)
     
     blurred = cv2.bilateralFilter(gray, 11, 17, 17)
-    cv2.imshow("blurred", blurred)
+    #cv2.imshow("blurred", blurred)
     
     edged = cv2.Canny(blurred, 30, 200)
+    #(contours, _) = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    (contours, _) = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours = sorted(contours, key = cv2.contourArea, reverse = False)
     
-    #thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    #cv2.imshow("thresh", thresh)
-
-    # find contours in the thresholded image and initialize the
-    # shape detector
-    (cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = sorted(cnts, key = cv2.contourArea, reverse = False)
-    
-    shapes = {'circle':[], 'triangle':[], 'square':[], 'rectangle':[], 'pentagon':[]}
+    #shapes = {'circle':[], 'triangle':[], 'square':[], 'rectangle':[], 'pentagon':[]}
     # loop over the contours
-    for c in cnts:
-	    # compute the center of the contour, then detect the name of the
-	    # shape using only the contour
+    for c in contours:
 	    M = cv2.moments(c)
 	    if M["m00"] == 0:
 	        continue
-	    #print M
 	    
-	    cX = int((M["m10"] / M["m00"]) * ratio)
-	    cY = int((M["m01"] / M["m00"]) * ratio)
+	    cX = int(math.floor((M["m10"] / M["m00"]) * ratio))
+	    cY = int(math.floor((M["m01"] / M["m00"]) * ratio))
+	    
+	    if cX < 0 or cX >= len(resized) or cY < 0 or cY >= len(resized[0]):
+	        continue
+		    
+	    (r, g, b) = image[cX][cY]
+	    
+	    # only continue if reddish
+	    if not (r > 100 and (r > g or r > b)):
+	        continue
+	    
 	    shape = sd.detect(c)
 	    
-	    shapes[shape].append((cX, cY))
+	    # only continue if squareish
+	    #if not shape == 'square':
+	    #    continue
 	    
-	    #if shape == 'circle' and 
-	    #print shapes
-
-	    # multiply the contour (x, y)-coordinates by the resize ratio,
-	    # then draw the contours and the name of the shape on the image
+	    # only continue if rectangularish
+	    if not shape == 'rectangle':
+	        continue
+	    
+	    print((r, g, b))
+	    
+	    #shapes[shape].append((cX, cY))
 	    c = c.astype("float")
 	    c *= ratio
 	    c = c.astype("int")
 	    cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
 	    cv2.putText(image, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
 		    0.5, (255, 255, 255), 2)
+	        
 
     # show the output image
     cv2.imshow("Image", image)
