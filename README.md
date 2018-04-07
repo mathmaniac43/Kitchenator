@@ -1,9 +1,10 @@
 # Kitchenator
 
 Requirements: Python 3.6, VirtualEnv
+
 All software tested on MacOS Sierra Version 10.12.6
 
-Django framework for serving up the Kitchenator UI and maintaining python processes running all the hardware
+This is (or will be) a Django framework for serving up the Kitchenator UI and maintaining python processes running all the hardware
 
 ## Installation: (bear with me here)
 
