@@ -10,13 +10,13 @@ Kitchenator is a Django framework for serving up the Kitchenator UI and maintain
 
 ## Installation: (bear with me here)
 
-Create a project directory (name is not important)
-Once inside the directory, clone this repo.
+Clone this repo.
 Then run:
+> cd Kitchenator
 > virtualenv venv -p python3
 
 This will create a VirtualEnv directory 'venv'
-From your project directory, run:
+From this directory, run:
 > source venv/bin/activate
 
 This will set up your VirtualEnv
@@ -27,10 +27,8 @@ With your VirtualEnv activated, perform the following:
 >pip install django
 
 
-
 ## Running the Server
-With virtualenv activated!
-
+With virtualenv activated,
 Run:
 >python manage.py runserver
 
