@@ -33,3 +33,5 @@ With virtualenv activated!
 
 Run:
 >python manage.py runserver
+
+You can view the current interface in a web browser at http://127.0.0.1:8000
