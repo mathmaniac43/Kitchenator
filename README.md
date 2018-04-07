@@ -1,10 +1,12 @@
 # Kitchenator
 
+* Kitchenator is powered by KitchenNet *
+
 Requirements: Python 3.6, VirtualEnv
 
 All software tested on MacOS Sierra Version 10.12.6
 
-This is (or will be) a Django framework for serving up the Kitchenator UI and maintaining python processes running all the hardware
+Kitchenator is a Django framework for serving up the Kitchenator UI and maintaining python processes running all the hardware
 
 ## Installation: (bear with me here)
 
@@ -23,5 +25,10 @@ You should see the prefix (venv) in your command terminal
 With your VirtualEnv activated, perform the following:
 >pip install django
 
-### *Experimental/Unverified*
-(I'm still working on what comes next)
+(maybe you don't need to do that last pip install)
+
+## Running the Server
+With virtualenv active* (I think)
+
+Run:
+>python manage.py runserver
