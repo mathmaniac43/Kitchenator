@@ -25,10 +25,8 @@ You should see the prefix (venv) in your command terminal
 With your VirtualEnv activated, perform the following:
 >pip install django
 
-(maybe you don't need to do that last pip install)
-
 ## Running the Server
-With virtualenv active* (I think)
+With virtualenv activated!
 
 Run:
 >python manage.py runserver
