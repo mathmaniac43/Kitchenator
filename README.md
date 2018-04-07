@@ -14,6 +14,7 @@ Inside the directory run:
 This will create a VirtualEnv directory 'venv'
 From your project directory, run:
 > source venv/bin/activate
+
 This will set up your VirtualEnv
 You should see the prefix (venv) in your command terminal
 (To exit this virtual environment, type 'deactivate')
@@ -22,3 +23,4 @@ With your VirtualEnv activated, perform the following:
 >pip install django
 
 ### *Experimental/Unverified*
+(I'm still working on what comes next)
