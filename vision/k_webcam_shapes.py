@@ -3,20 +3,26 @@ import cv2
 import imutils
 import math
 import time
-import webcolors
 
-from pyimagesearch.shapedetector import ShapeDetector
-
-mouse_x, mouse_y = -1, -1
+g_mouse_x, g_mouse_y = -1, -1
 def mouse_callback(event, x, y, flags, param):
-    global mouse_x, mouse_y
+    global g_mouse_x, g_mouse_y
     
     if event == cv2.EVENT_MOUSEMOVE:
-        mouse_x = x
-        mouse_y = y
+        g_mouse_x = x
+        g_mouse_y = y
         
 def trackbar_callback(val):
     pass
+
+
+def camera_selector_callback(val):
+    global g_camera
+    
+    g_camera = cv2.VideoCapture(val)
+    g_camera.set(cv2.cv.CV_CAP_PROP_FPS, 2)
+    g_camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,  IMAGE_WIDTH)
+    g_camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
 
 def is_square(points, tol):
     if len(points) == 4:
@@ -32,6 +38,8 @@ def get_RGB_string(requested_color):
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 480
 WINDOW_NAME = "Image"
+CONTROL_WINDOW_NAME = "Controls"
+CAMERA_SELECTOR_TRACKBAR_NAME = "Choose Camera Index"
 CANNY_MIN_TRACKBAR_NAME = "Canny Min"
 CANNY_MAX_TRACKBAR_NAME = "Canny Max"
 AREA_MIN_TRACKBAR_NAME = "Area Min"
@@ -42,25 +50,23 @@ BLUE_THRESHOLD = COLOR_THRESHOLD + 15
 
 cv2.namedWindow(WINDOW_NAME)
 cv2.setMouseCallback(WINDOW_NAME, mouse_callback)
-cv2.createTrackbar(CANNY_MIN_TRACKBAR_NAME, WINDOW_NAME, 120, 255, trackbar_callback)
-cv2.createTrackbar(CANNY_MAX_TRACKBAR_NAME, WINDOW_NAME, 180, 255, trackbar_callback)
-cv2.createTrackbar(AREA_MIN_TRACKBAR_NAME,  WINDOW_NAME, 120, 300, trackbar_callback)
-cv2.createTrackbar(AREA_MAX_TRACKBAR_NAME,  WINDOW_NAME, 180, 300, trackbar_callback)
 
-camera = cv2.VideoCapture(1)
-camera.set(cv2.cv.CV_CAP_PROP_FPS, 2)
-camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH,  IMAGE_WIDTH)
-camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
+cv2.namedWindow(CONTROL_WINDOW_NAME)
+cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 0, 3, camera_selector_callback)
+cv2.createTrackbar(CANNY_MIN_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 120, 255, trackbar_callback)
+cv2.createTrackbar(CANNY_MAX_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 180, 255, trackbar_callback)
+cv2.createTrackbar(AREA_MIN_TRACKBAR_NAME,  CONTROL_WINDOW_NAME, 120, 300, trackbar_callback)
+cv2.createTrackbar(AREA_MAX_TRACKBAR_NAME,  CONTROL_WINDOW_NAME, 180, 300, trackbar_callback)
 
+camera_selector_callback(0) # default to the first camera value
 time.sleep(2)
 
-sd = ShapeDetector()
 while True:
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
         break
     
-    (grabbed, image) = camera.read()
+    (grabbed, image) = g_camera.read()
     if not grabbed:
         continue
         
@@ -69,7 +75,7 @@ while True:
     area_min = cv2.getTrackbarPos(AREA_MIN_TRACKBAR_NAME, WINDOW_NAME)  
     area_max = cv2.getTrackbarPos(AREA_MAX_TRACKBAR_NAME, WINDOW_NAME)
     
-    image = cv2.flip(image, -1)
+    image = cv2.flip(image, 1)
     
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.bilateralFilter(gray, 11, 17, 17)
@@ -80,13 +86,13 @@ while True:
     
     edited_image = image.copy()
     
-    if (mouse_x >= 0 and mouse_x < IMAGE_WIDTH and
-        mouse_y >= 0 and mouse_y < IMAGE_HEIGHT):
+    if (g_mouse_x >= 0 and g_mouse_x < IMAGE_WIDTH and
+        g_mouse_y >= 0 and g_mouse_y < IMAGE_HEIGHT):
         
-        (mouse_b, mouse_g, mouse_r) = image[mouse_y][mouse_x]
+        (mouse_b, mouse_g, mouse_r) = image[g_mouse_y][g_mouse_x]
         
-        s = ("x=" + str(mouse_x) + " " +
-             "y=" + str(mouse_y) + " " +
+        s = ("x=" + str(g_mouse_x) + " " +
+             "y=" + str(g_mouse_y) + " " +
              "c=" + get_RGB_string((mouse_r, mouse_g, mouse_b)))
         
         # Print color information where mouse is
@@ -158,6 +164,7 @@ while True:
             0.5, (255, 255, 255), 2)
     
     cv2.imshow(WINDOW_NAME, edited_image)
+    cv2.namedWindow(CONTROL_WINDOW_NAME)
 
-camera.release()
+g_camera.release()
 cv2.destroyAllWindows()
