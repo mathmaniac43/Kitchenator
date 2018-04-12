@@ -15,9 +15,12 @@ def mouse_callback(event, x, y, flags, param):
 def trackbar_callback(val):
     pass
 
-
+g_camera = None
 def camera_selector_callback(val):
     global g_camera
+    
+    if g_camera != None:
+        g_camera.release()
     
     g_camera = cv2.VideoCapture(val)
     g_camera.set(cv2.cv.CV_CAP_PROP_FPS, 2)
@@ -27,16 +30,18 @@ def camera_selector_callback(val):
 def is_square(points, tol):
     if len(points) == 4:
         rect = cv2.minAreaRect(points) # ((x,y), (w,h), rot)
-        m = min(rect[1])
-        return (m * tol > abs(rect[1][0] - rect[1][1]))
+        w = rect[1][0]
+        h = rect[1][1]
+        m = min((w, h))
+        return (m * tol > abs(w - h))
     
     return False
 
 def get_RGB_string(requested_color):
     return 'R%03d G%03d B%03d' % requested_color
         
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 480
+IMAGE_WIDTH = 1920/2#640
+IMAGE_HEIGHT = 1080/2#480
 WINDOW_NAME = "Image"
 CONTROL_WINDOW_NAME = "Controls"
 CAMERA_SELECTOR_TRACKBAR_NAME = "Choose Camera Index"
@@ -45,20 +50,26 @@ CANNY_MAX_TRACKBAR_NAME = "Canny Max"
 AREA_MIN_TRACKBAR_NAME = "Area Min"
 AREA_MAX_TRACKBAR_NAME = "Area Max"
 
-COLOR_THRESHOLD = 50
+RED_BLACK_dANCE_M = 0.033
+
+PIXELS_PER_M = None
+RED_X_M = None
+RED_Y_M = None
+
+COLOR_THRESHOLD = 60
 BLUE_THRESHOLD = COLOR_THRESHOLD + 15
 
 cv2.namedWindow(WINDOW_NAME)
 cv2.setMouseCallback(WINDOW_NAME, mouse_callback)
 
 cv2.namedWindow(CONTROL_WINDOW_NAME)
-cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 0, 3, camera_selector_callback)
+cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 1, 3, camera_selector_callback)
 cv2.createTrackbar(CANNY_MIN_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 120, 255, trackbar_callback)
 cv2.createTrackbar(CANNY_MAX_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 180, 255, trackbar_callback)
-cv2.createTrackbar(AREA_MIN_TRACKBAR_NAME,  CONTROL_WINDOW_NAME, 120, 300, trackbar_callback)
-cv2.createTrackbar(AREA_MAX_TRACKBAR_NAME,  CONTROL_WINDOW_NAME, 180, 300, trackbar_callback)
+cv2.createTrackbar(AREA_MIN_TRACKBAR_NAME,  CONTROL_WINDOW_NAME, 120, 600, trackbar_callback)
+cv2.createTrackbar(AREA_MAX_TRACKBAR_NAME,  CONTROL_WINDOW_NAME, 180, 600, trackbar_callback)
 
-camera_selector_callback(0) # default to the first camera value
+camera_selector_callback(cv2.getTrackbarPos(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME)) # default to the first camera value
 time.sleep(2)
 
 while True:
@@ -70,12 +81,14 @@ while True:
     if not grabbed:
         continue
         
-    canny_min = cv2.getTrackbarPos(CANNY_MIN_TRACKBAR_NAME, WINDOW_NAME)
-    canny_max = cv2.getTrackbarPos(CANNY_MAX_TRACKBAR_NAME, WINDOW_NAME)  
-    area_min = cv2.getTrackbarPos(AREA_MIN_TRACKBAR_NAME, WINDOW_NAME)  
-    area_max = cv2.getTrackbarPos(AREA_MAX_TRACKBAR_NAME, WINDOW_NAME)
+    canny_min = cv2.getTrackbarPos(CANNY_MIN_TRACKBAR_NAME, CONTROL_WINDOW_NAME)
+    canny_max = cv2.getTrackbarPos(CANNY_MAX_TRACKBAR_NAME, CONTROL_WINDOW_NAME)  
+    area_min = cv2.getTrackbarPos(AREA_MIN_TRACKBAR_NAME,   CONTROL_WINDOW_NAME)  
+    area_max = cv2.getTrackbarPos(AREA_MAX_TRACKBAR_NAME,   CONTROL_WINDOW_NAME)
     
     image = cv2.flip(image, 1)
+    
+    image = imutils.resize(image, width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
     
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.bilateralFilter(gray, 11, 17, 17)
@@ -125,11 +138,16 @@ while True:
         
         if (not is_square(approx, 0.2)):
             continue
+            
+        rect = cv2.minAreaRect(approx)
+        
+        w = rect[1][0]
+        h = rect[1][1]
         
         # This ordering is bad and should feel bad.
         (b, g, r) = image[y][x]
             
-        tuple = (x, y, area)
+        tuple = (x, y, w, h, area, (r, g, b))
         if (r < COLOR_THRESHOLD and
             g < COLOR_THRESHOLD and
             b < COLOR_THRESHOLD):
@@ -153,18 +171,33 @@ while True:
         else:
             color_name = get_RGB_string((r, g, b))
         
+        cv2.drawContours(edited_image, [approx], -1, (0, 0, 255), 2)
+    
+    done = False
+    for (rx, ry, rw, rh, _, _) in red_squares:
+        for (bx, by, _, _, _, _) in black_squares:
+            d = math.sqrt((bx - rx) ** 2 + (by - ry) ** 2)
+            m = min((rw, rh))
+            if d < m * 1.5:
+                PIXELS_PER_M = d / RED_BLACK_dANCE_M
+                done = True
+                break
+            
+        if done:
+            break
+            
+    cv2.putText(edited_image, str(PIXELS_PER_M), (5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+    
+    for (x, y, w, h, A, col) in (black_squares + red_squares + green_squares + blue_squares):
         s = ("x=" + str(x) + " " +
              "y=" + str(y) + " " +
              "A=" + str(area) + " " +
-             "c=" + color_name)
+             "c=" + get_RGB_string(col))
+             
+        print s
         
-        cv2.drawContours(edited_image, [approx], -1, (0, 0, 255), 2)
-
         cv2.putText(edited_image, s, (x, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.5, (255, 255, 255), 2)
     
     cv2.imshow(WINDOW_NAME, edited_image)
     cv2.namedWindow(CONTROL_WINDOW_NAME)
-
-g_camera.release()
-cv2.destroyAllWindows()
