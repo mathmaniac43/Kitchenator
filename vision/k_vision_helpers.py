@@ -7,11 +7,11 @@ import time
 
 from collections import namedtuple
 
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT= 480
+#IMAGE_WIDTH = 640
+#IMAGE_HEIGHT= 480
 
-#IMAGE_WIDTH =  1920/2
-#IMAGE_HEIGHT = 1080/2
+IMAGE_WIDTH =  1920/2
+IMAGE_HEIGHT = 1080/2
 
 IMAGE_WINDOW_NAME = "Image"
 CONTROL_WINDOW_NAME = "Controls"
@@ -98,27 +98,20 @@ def find_pair(squares, c1, c2, lengths_between_centers, tol):
                         target = m * lengths_between_centers
                         delta = m * tol
                         
-                        s1_deg = numpy.rad2deg(s1.rot) % 360
-                        s2_deg = numpy.rad2deg(s2.rot) % 360
+                        s1_deg = s1.rot % 90 # squares are 4-angle symmetrical
+                        s2_deg = s2.rot % 90 # squares are 4-angle symmetrical
 
                         y_dist = s2.y - s1.y
                         x_dist = s2.x - s1.x
                         theta = numpy.rad2deg(math.atan2(y_dist, x_dist)) % 360
                         
-                        # todo: these degrees are independent of the squares;
-                        # the angle between the squares would need to be taken
-                        # into account as well
-                        
-                        angle_tol = 5 # deg
+                        angle_tol = 20 # deg
                         if (d >= (target - delta) and d <= (target + delta) and
                             abs(s1.w - m) < m * tol and abs(s1.h - m) < m * tol and
                             abs(s2.w - m) < m * tol and abs(s2.h - m) < m * tol and
-                            abs(theta % 90 - s1_deg % 90) <= angle_tol and
-                            abs(theta % 90 - s2_deg % 90) <= angle_tol and
-                            abs(s1_deg % 90 - s2_deg % 90) <= angle_tol):
-                            print('Next')
-                            print((theta, s1_deg, s2_deg))
-                            print((theta % 90, s1_deg % 90, s2_deg % 90))
+                            abs(theta % 90 - s1_deg) <= angle_tol and
+                            abs(theta % 90 - s2_deg) <= angle_tol and
+                            abs(s1_deg - s2_deg) <= angle_tol):
                             return (s1, s2)
     
     return (None, None)
@@ -132,10 +125,9 @@ def classify_color(rgb_tuple):
     # pixel is 'more red' or 'more green'
     colors = {
         "black": (  0,   0,   0),
-        "white": (255, 255, 255),
-        "red":   (150,   0,   0), #(255,   0,   0),
-        "green": (  0, 150,   0), #(  0, 255,   0),
-        "blue":  (  0,   0, 150)  #(  0,   0, 255)
+        "red":   (255,   0,   0), #(255,   0,   0),
+        "green": (  0, 255,   0), #(  0, 255,   0),
+        "blue":  (  0,   0, 255)  #(  0,   0, 255)
     }
     
     manhattan = lambda x,y : abs(x[0] - y[0]) + abs(x[1] - y[1]) + abs(x[2] - y[2])
@@ -180,7 +172,7 @@ def get_rectangle_for_squares(s1, s2):
         [[t_r_x, t_r_y]]
     ])
     
-    return rect
+    return (rect, theta)
     
     
 def setup_gui():
