@@ -27,21 +27,11 @@ CAMERA_SELECTOR_TRACKBAR_NAME = "Choose Camera Index"
 CANNY_MIN_TRACKBAR_NAME = "Canny Min"
 CANNY_MAX_TRACKBAR_NAME = "Canny Max"
 
-DISTANCE_UNITS = "cm"
-BLACK_GREEN_DISTANCE = 7 * 2.54
-
-ORIGIN_OFFSET_R_DIST = -13.5
-ORIGIN_OFFSET_D_DIST =  0
-
 # Globals
 
 g_mouse_x = -1,
 g_mouse_y = -1
 g_camera = None
-
-g_origin_x = -1
-g_origin_y = -1
-g_origin_rot = 0
 
 def mouse_callback(event, x, y, flags, param):
     global g_mouse_x, g_mouse_y
@@ -97,7 +87,7 @@ def is_square(points, rect, tol):
 
 Square = namedtuple('Square', ['x', 'y', 'w', 'h', 'rot', 'col', 'age'])
 
-def find_pair(squares, c1, c2, lengths_between_centers, tol):
+def find_pair(squares, c1, c2, lengths_between_centers, dist_tol, angle_tol_deg):
     
     # todo: can probably add more checks for ensuring similar size
     # search newest to oldest
@@ -111,7 +101,7 @@ def find_pair(squares, c1, c2, lengths_between_centers, tol):
                         d = math.sqrt((s1.x - s2.x) ** 2 + (s1.y - s2.y) ** 2)
                         m = min((s1.w, s1.h, s2.w, s2.h))
                         target = m * lengths_between_centers
-                        delta = m * tol
+                        delta = m * dist_tol
                         
                         s1_deg = s1.rot % 90 # squares are 4-angle symmetrical
                         s2_deg = s2.rot % 90 # squares are 4-angle symmetrical
@@ -120,13 +110,12 @@ def find_pair(squares, c1, c2, lengths_between_centers, tol):
                         x_dist = s2.x - s1.x
                         theta = numpy.rad2deg(math.atan2(y_dist, x_dist)) % 360
                         
-                        angle_tol = 20 # deg
                         if (d >= (target - delta) and d <= (target + delta) and
-                            abs(s1.w - m) < m * tol and abs(s1.h - m) < m * tol and
-                            abs(s2.w - m) < m * tol and abs(s2.h - m) < m * tol and
-                            abs(theta % 90 - s1_deg) <= angle_tol and
-                            abs(theta % 90 - s2_deg) <= angle_tol and
-                            abs(s1_deg - s2_deg) <= angle_tol):
+                            abs(s1.w - m) < delta and abs(s1.h - m) < delta and
+                            abs(s2.w - m) < delta and abs(s2.h - m) < delta and
+                            abs(theta % 90 - s1_deg) <= angle_tol_deg and
+                            abs(theta % 90 - s2_deg) <= angle_tol_deg and
+                            abs(s1_deg - s2_deg) <= angle_tol_deg):
                             return (s1, s2)
     
     return (None, None)
@@ -191,8 +180,8 @@ def apply_transform(center, theta, translation, pixel = False):
     dy = translation[1]
     
     result = (
-        (x + dy * math.sin(theta) + dx * math.cos(theta)),
-        (y + dx * math.sin(theta) - dy * math.cos(theta))
+        (x + dx * math.cos(theta) - dy * math.sin(theta)),
+        (y + dx * math.sin(theta) + dy * math.cos(theta))
     )
     
     if pixel:
