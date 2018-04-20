@@ -6,12 +6,6 @@ import time
 
 from k_vision_helpers import *
 
-DISTANCE_UNITS = "cm"
-BLACK_GREEN_DISTANCE = 7 * 2.54
-
-ORIGIN_OFFSET_R_DIST = -13.5
-ORIGIN_OFFSET_D_DIST =  0
-
 setup_gui()
 
 squares = []
@@ -28,7 +22,7 @@ while True:
     canny_min = cv2.getTrackbarPos(CANNY_MIN_TRACKBAR_NAME, CONTROL_WINDOW_NAME)
     canny_max = cv2.getTrackbarPos(CANNY_MAX_TRACKBAR_NAME, CONTROL_WINDOW_NAME)
     
-    image = cv2.flip(image, 1)
+    image = cv2.flip(image, FLIP_VALUE)
     
     image = imutils.resize(image, width=IMAGE_WIDTH)#, height=IMAGE_HEIGHT)
     
@@ -97,20 +91,36 @@ while True:
         squares.remove(black)
         squares.remove(green)
         
-        (bk_gr, rot) = get_rectangle_for_squares(black, green)
+        (bk_gr, g_origin_rot) = get_rectangle_for_squares(black, green)
         cv2.drawContours(edited_image, [bk_gr], -1, (0, 255, 0), 2)
     
         d = math.sqrt((black.x - green.x) ** 2 + (black.y - green.y) ** 2)
-        PIXEL_DENSITY = d / BLACK_GREEN_DISTANCE
-        #print("%f pixels per %s" % (PIXEL_DENSITY, DISTANCE_UNITS))
+        PIXELS_PER_UNIT_LENGTH = d / BLACK_GREEN_DISTANCE
         
-        origin_offset_r = ORIGIN_OFFSET_R_DIST * PIXEL_DENSITY
-        origin_offset_d = ORIGIN_OFFSET_D_DIST * PIXEL_DENSITY
+        origin_offset_r = ORIGIN_OFFSET_R_DIST * PIXELS_PER_UNIT_LENGTH
+        origin_offset_d = ORIGIN_OFFSET_D_DIST * PIXELS_PER_UNIT_LENGTH
         
-        origin_x = black.x + int(round(math.cos(rot) * origin_offset_r - math.sin(rot) * origin_offset_d))
-        origin_y = black.y + int(round(math.cos(rot) * origin_offset_d + math.sin(rot) * origin_offset_r))
+        (g_origin_x, g_origin_y) = apply_transform((black.x, black.y), g_origin_rot, (origin_offset_r, origin_offset_d), True)
         
-        cv2.circle(edited_image, (origin_x, origin_y), 5, (0, 0, 0))
+        UNITS_RIGHT_MAX = 50
+        UNITS_DOWN_MAX = UNITS_RIGHT_MAX
+        UNITS_STEP = 5
+        
+        for steps_right in range(-UNITS_RIGHT_MAX, UNITS_RIGHT_MAX + UNITS_STEP, UNITS_STEP):
+            for steps_down in range(-UNITS_DOWN_MAX, UNITS_DOWN_MAX + UNITS_STEP, UNITS_STEP):
+                offset_r = steps_right * PIXELS_PER_UNIT_LENGTH
+                offset_d = steps_down * PIXELS_PER_UNIT_LENGTH
+                
+                (x, y) = apply_transform((g_origin_x, g_origin_y), g_origin_rot, (offset_r, offset_d), True)
+                
+                if steps_right == 0 or steps_down == 0:
+                    color = (0, 0, 0)
+                else:
+                    color = (100, 100, 100)
+                
+                cv2.circle(edited_image, (x, y), 3, color)
+        
+        cv2.circle(edited_image, (g_origin_x, g_origin_y), 5, (0, 255, 255))
         
     (black, blue) = find_pair(squares, "black", "blue", 1.1, PAIR_TOL)
     if black != None:
@@ -139,3 +149,5 @@ while True:
     
     cv2.imshow(IMAGE_WINDOW_NAME, edited_image)
     cv2.namedWindow(CONTROL_WINDOW_NAME)
+
+close_gui()

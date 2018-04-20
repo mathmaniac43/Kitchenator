@@ -7,11 +7,19 @@ import time
 
 from collections import namedtuple
 
-#IMAGE_WIDTH = 640
-#IMAGE_HEIGHT= 480
+# Constants
+HOME = True
 
-IMAGE_WIDTH =  1920/2
-IMAGE_HEIGHT = 1080/2
+if HOME:
+    IMAGE_WIDTH = 640
+    IMAGE_HEIGHT= 480
+    
+    FLIP_VALUE = -1
+else:
+    IMAGE_WIDTH =  1920/2
+    IMAGE_HEIGHT = 1080/2
+    
+    FLIP_VALUE = 1
 
 IMAGE_WINDOW_NAME = "Image"
 CONTROL_WINDOW_NAME = "Controls"
@@ -19,14 +27,22 @@ CAMERA_SELECTOR_TRACKBAR_NAME = "Choose Camera Index"
 CANNY_MIN_TRACKBAR_NAME = "Canny Min"
 CANNY_MAX_TRACKBAR_NAME = "Canny Max"
 
-PIXELS_PER_M = None
-RED_X_M = None
-RED_Y_M = None
+DISTANCE_UNITS = "cm"
+BLACK_GREEN_DISTANCE = 7 * 2.54
 
-COLOR_THRESHOLD = 60
-BLUE_THRESHOLD = COLOR_THRESHOLD + 15
+ORIGIN_OFFSET_R_DIST = -13.5
+ORIGIN_OFFSET_D_DIST =  0
 
-g_mouse_x, g_mouse_y = -1, -1
+# Globals
+
+g_mouse_x = -1,
+g_mouse_y = -1
+g_camera = None
+
+g_origin_x = -1
+g_origin_y = -1
+g_origin_rot = 0
+
 def mouse_callback(event, x, y, flags, param):
     global g_mouse_x, g_mouse_y
     
@@ -49,7 +65,6 @@ def camera():
 def trackbar_callback(val):
     pass
 
-g_camera = None
 def camera_selector_callback(val):
     global g_camera, IMAGE_WIDTH, IMAGE_HEIGHT
     
@@ -137,6 +152,7 @@ def classify_color(rgb_tuple):
     
 def get_rectangle_for_squares(s1, s2):
     # with zero rotation (theta=0), s1 is to the left of s2
+    # rotation goes clockwise
     
     # TL                TR
     #  ------     ------
@@ -153,27 +169,39 @@ def get_rectangle_for_squares(s1, s2):
     x_dist = s2.x - s1.x
     theta = math.atan2(y_dist, x_dist)
     
-    t_l_x = int(round(s1.x + d * ( math.sin(theta) - math.cos(theta))))
-    t_l_y = int(round(s1.y + d * (-math.sin(theta) - math.cos(theta))))
-    
-    b_l_x = int(round(s1.x + d * (-math.sin(theta) - math.cos(theta))))
-    b_l_y = int(round(s1.y + d * (-math.sin(theta) + math.cos(theta))))
-    
-    b_r_x = int(round(s2.x + d * (-math.sin(theta) + math.cos(theta))))
-    b_r_y = int(round(s2.y + d * ( math.sin(theta) + math.cos(theta))))
-    
-    t_r_x = int(round(s2.x + d * ( math.sin(theta) + math.cos(theta))))
-    t_r_y = int(round(s2.y + d * ( math.sin(theta) - math.cos(theta))))
+    t_l = apply_transform((s1.x, s1.y), theta, (-d, -d), True)
+    b_l = apply_transform((s1.x, s1.y), theta, (-d,  d), True)
+    t_r = apply_transform((s2.x, s2.y), theta, ( d, -d), True)
+    b_r = apply_transform((s2.x, s2.y), theta, ( d,  d), True)
     
     rect = numpy.array([ 
-        [[t_l_x, t_l_y]],
-        [[b_l_x, b_l_y]],
-        [[b_r_x, b_r_y]],
-        [[t_r_x, t_r_y]]
+        [t_l],
+        [b_l],
+        [b_r],
+        [t_r]
     ])
     
     return (rect, theta)
+
+# This works for both pixels AND distances =)
+def apply_transform(center, theta, translation, pixel = False):
+    x = center[0]
+    y = center[1]
+    dx = translation[0]
+    dy = translation[1]
     
+    result = (
+        (x + dy * math.sin(theta) + dx * math.cos(theta)),
+        (y + dx * math.sin(theta) - dy * math.cos(theta))
+    )
+    
+    if pixel:
+        result = (
+            int(round(result[0])),
+            int(round(result[1]))
+        )
+    
+    return result
     
 def setup_gui():
     global CONTROL_WINDOW_NAME
@@ -192,3 +220,9 @@ def setup_gui():
 
     camera_selector_callback(cv2.getTrackbarPos(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME)) # default to the first camera value
     time.sleep(2)
+
+def close_gui():
+    global g_camera
+    
+    g_camera.release()
+    cv2.destroyAllWindows()
