@@ -39,7 +39,7 @@ blue_x = -1
 blue_y = -1
 blue_rot = 0
 
-pixels_per_unit_length = 0
+pixels_per_unit_length = -1
 
 squares = []
 
@@ -129,6 +129,10 @@ while True:
         # Yellow circle about the origin, signifying a live update.
         cv2.circle(edited_image, (origin_x, origin_y), 5, (0, 255, 255))
     
+    # Gotta find the reference point first, or else the math breaks
+    if pixels_per_unit_length < 0:
+        continue
+    
     # Detect black and blue pair.
     (black, blue) = find_pair(squares, "black", "blue", BLACK_BLUE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
     if black != None:
@@ -193,21 +197,46 @@ while True:
     if green_x >= 0 and green_y >= 0:
         cv2.circle(edited_image, (green_x, green_y), 3, (0, 255, 0))
         
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (green_x, green_y))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+        
         pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
-            -ORIGIN_OFFSET_R_DIST,
-            -ORIGIN_OFFSET_D_DIST,
+            right,
+            down,
             DISTANCE_UNITS
         )
-        # Green can cheat =)
         cv2.putText(edited_image, pos_str, (green_x + 5, green_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
     
     # Label last known position of blue.
     if blue_x >= 0 and blue_y >= 0:
         cv2.circle(edited_image, (blue_x, blue_y), 3, (255, 80, 80))
+        
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (blue_x, blue_y))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+        
+        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
+            right,
+            down,
+            DISTANCE_UNITS
+        )
+        cv2.putText(edited_image, pos_str, (blue_x + 5, blue_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 2)
     
     # Label last known position of red.
     if red_x >= 0 and red_y >= 0:
         cv2.circle(edited_image, (red_x, red_y), 3, (0, 0, 255))
+        
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (red_x, red_y))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+        
+        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
+            right,
+            down,
+            DISTANCE_UNITS
+        )
+        cv2.putText(edited_image, pos_str, (red_x + 5, red_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
         
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
@@ -228,12 +257,23 @@ while True:
         mouse_y() >= 0 and mouse_y() < IMAGE_HEIGHT):
         (mouse_b, mouse_g, mouse_r) = image[mouse_y()][mouse_x()]
         
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (mouse_x(), mouse_y()))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+        
+        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
+            right,
+            down,
+            DISTANCE_UNITS
+        )
+        
         s = ("x=" + str(mouse_x()) + " " +
              "y=" + str(mouse_y()) + " " +
              "c=" + classify_color((mouse_r, mouse_g, mouse_b)) + "? " +
              "r=" + str(mouse_r) + " " + 
              "g=" + str(mouse_g) + " " + 
-             "b=" + str(mouse_b))
+             "b=" + str(mouse_b) + " " +
+             pos_str)
         
         # Print latest mouse position information at the bottom of the screen.
         cv2.rectangle(edited_image, (0, IMAGE_HEIGHT - 20), (IMAGE_WIDTH, IMAGE_HEIGHT), (0, 0, 0), -1)

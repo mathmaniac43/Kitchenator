@@ -192,6 +192,13 @@ def apply_transform(center, theta, translation, pixel = False):
     
     return result
     
+#
+def inverse_transform(center, theta, point, pixel = False):
+    new_center = (0, 0)
+    new_point = (point[0] - center[0], point[1] - center[1])
+    return apply_transform(new_center, -theta, new_point, pixel)
+    
+    
 def setup_gui():
     global CONTROL_WINDOW_NAME
     global CAMERA_SELECTOR_TRACKBAR_NAME
