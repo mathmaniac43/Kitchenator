@@ -12,6 +12,7 @@ starttime = time.time()
 c = httplib.HTTPConnection('localhost', 8080)
 
 gestRun = True
+delayTime = 1.0
 while gestRun:
     print('updating gesture....')
     data = {}
@@ -20,7 +21,7 @@ while gestRun:
     c.request('POST', '/setGestureState', json_data)
     doc = c.getresponse().read()
     print doc
-    time.sleep(1.0 - ((time.time() - starttime) % 1.0))
+    time.sleep(delayTime - ((time.time() - starttime) % delayTime))
 
 
 # 'All done'
