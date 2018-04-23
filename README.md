@@ -15,16 +15,20 @@ All data is passed as JSON
 ### Gesture Client:
 Updates the gesture state in KitchenNet 
 Gesture JSON: 
+
 `{"gesture": 1}`
 
 ### Arm Client:
-Checks KitchenNet to see if it should be 'going somewhere' (and if so, where to), 'at rest', or 'paused'
+Checks KitchenNet to see if it should be 'going' (and if so, where to), 'standby', or 'paused'
+The arm client's GET request returns JSON of the form:
+`{"armGoalPose": [x, y, pitch, yaw], "armGoalState": 'standby/paused/going'}`
 
 ### Vision Client:
 Checks KitchenNet for a desired target, if so updates the target arm pose
 
 ### Voice Command Client:
 COMIN REAL SOON
+https://github.com/mozilla/DeepSpeech#using-the-python-package
 
 ### Visual User Interface:
 Back-burner priority, but will display basic Kitchenator state information, error messages, or maybe debug information
