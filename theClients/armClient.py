@@ -1,3 +1,7 @@
+import httplib
+import time
+import json
+
 '''
  The Arm Manager/Client:
 
@@ -9,3 +13,18 @@
 
 
 '''
+
+starttime = time.time()
+c = httplib.HTTPConnection('localhost', 8080)
+
+armRun = True
+delayTime = 0.25
+while armRun:
+    print('checking state at %f....' % (time.time() - starttime))
+    c.request('GET', '/getArmGoals')
+    doc = c.getresponse().read()
+    print doc
+    time.sleep(delayTime - ((time.time() - starttime) % delayTime))
+
+
+# 'All done'

@@ -2,7 +2,7 @@ import json
 
 from bottle import run, post, request, response
 
-from callHandlers import gestureCalls, stateCalls, visionCalls
+from callHandlers import gestureCalls, stateCalls, visionCalls, armCalls
 
 
 ''' Arm State '''
