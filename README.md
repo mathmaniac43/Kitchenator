@@ -31,8 +31,8 @@ COMIN REAL SOON
 https://github.com/mozilla/DeepSpeech#using-the-python-package
 
 ### Visual User Interface:
-Back-burner priority, but will display basic Kitchenator state information, error messages, or maybe debug information
-
+Access at localhost:8080/userInterface
+Future will include 
 ## Dependencies:
 * Python2
 * bottle
