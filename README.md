@@ -2,34 +2,47 @@
 
 * Kitchenator is powered by KitchenNet *
 
-Requirements: Python 3.6, VirtualEnv
+Requirements: Python 2.7
 
 All software tested on MacOS Sierra Version 10.12.6
 
-Kitchenator is a Django framework for serving up the Kitchenator UI and maintaining python processes running all the hardware
+## Overview
+The state is recorded and available on a server launched by `kitchennet.py`
+The clients hook into this server and either update or check on the state by calling different HTTP methods
+KitchenNet is (at least for now) the state manager
 
-## Installation: (bear with me here)
+Information is passed between clients by updates to the state managed by KitchenNet.
+All data is passed as JSON
 
-Clone this repo.
-Then run:
-> cd Kitchenator
-> virtualenv venv -p python3
+### Gesture Client:
+Updates the gesture state in KitchenNet 
+Gesture JSON: 
+`{"gesture": 1}`
 
-This will create a VirtualEnv directory 'venv'
-From this directory, run:
-> source venv/bin/activate
+### Arm Client:
+Checks KitchenNet to see if it should be 'going somewhere' (and if so, where to), at rest, or paused
 
-This will set up your VirtualEnv
-You should see the prefix (venv) in your command terminal
-(To exit this virtual environment, type 'deactivate')
+### Vision Client:
+Checks KitchenNet for a desired target, if so updates the target arm pose
 
-With your VirtualEnv activated, perform the following:
->pip install django
+### User Interface:
+Back-burner priority, but will display basic Kitchenator state information, error messages, or maybe debug information
+
+## Dependencies:
+* Python2
+* httplib (Python3 requires a switch to http.client)
+* json
 
 
-## Running the Server
-With virtualenv activated,
-Run:
->python manage.py runserver
+## Operation
 
-You can view the current interface in a web browser at http://127.0.0.1:8000
+In one terminal, run: 
+> python kitchennet.py
+
+In another terminal, run:
+> python gestureClient.py
+
+In yet another terminal, run:
+> python armClient.py
+
+... and so on until all your clients are active
