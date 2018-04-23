@@ -18,7 +18,7 @@ Gesture JSON:
 `{"gesture": 1}`
 
 ### Arm Client:
-Checks KitchenNet to see if it should be 'going somewhere' (and if so, where to), at rest, or paused
+Checks KitchenNet to see if it should be 'going somewhere' (and if so, where to), 'at rest', or 'paused'
 
 ### Vision Client:
 Checks KitchenNet for a desired target, if so updates the target arm pose
@@ -48,3 +48,4 @@ In yet another terminal, run:
 > python armClient.py
 
 ... and so on until all your clients are active
+What happens next will mak
