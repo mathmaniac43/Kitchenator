@@ -1,8 +1,6 @@
 # Kitchenator
 
-* Kitchenator is powered by KitchenNet *
-
-Requirements: Python 2.7
+* Kitchenator is powered by KitchenNet 
 
 All software tested on MacOS Sierra Version 10.12.6
 
@@ -25,11 +23,15 @@ Checks KitchenNet to see if it should be 'going somewhere' (and if so, where to)
 ### Vision Client:
 Checks KitchenNet for a desired target, if so updates the target arm pose
 
-### User Interface:
+### Voice Command Client:
+COMIN REAL SOON
+
+### Visual User Interface:
 Back-burner priority, but will display basic Kitchenator state information, error messages, or maybe debug information
 
 ## Dependencies:
 * Python2
+* bottle
 * httplib (Python3 requires a switch to http.client)
 * json
 
