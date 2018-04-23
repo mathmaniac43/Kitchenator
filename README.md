@@ -39,13 +39,12 @@ Back-burner priority, but will display basic Kitchenator state information, erro
 ## Operation
 
 In one terminal, run: 
-> python kitchennet.py
+> python KitchenNet/kitchennet.py
 
 In another terminal, run:
-> python gestureClient.py
+> python theClients/gestureClient.py
+This script will update the gesture every second
 
-In yet another terminal, run:
-> python armClient.py
-
-... and so on until all your clients are active
-What happens next will mak
+In another terminal, run:
+> python theClients/testClient.py
+This script will keep querying the current gesture and print out the result

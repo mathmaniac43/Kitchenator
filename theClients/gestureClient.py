@@ -2,6 +2,8 @@ import httplib
 import time
 import json
 
+from random import randint
+
 
 '''
 Connects to the KitchenNet server at localhost:8080
@@ -16,8 +18,8 @@ delayTime = 1.0
 while gestRun:
     print('updating gesture....')
     data = {}
-    data['gesture'] = time.time() - starttime;
-    json_data = json.dumps(data)# = '{"gesture": {}}'.format(time.time())
+    data['gesture'] = randint(0,2);
+    json_data = json.dumps(data)
     c.request('POST', '/setGestureState', json_data)
     doc = c.getresponse().read()
     print doc
