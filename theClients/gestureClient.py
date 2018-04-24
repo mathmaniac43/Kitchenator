@@ -11,7 +11,7 @@ updates the gesture there every second by posting to '/setGestureState'
 '''
 
 starttime = time.time()
-c = httplib.HTTPConnection('localhost', 8080)
+c = httplib.HTTPConnection('127.0.0.1', 8000)
 
 gestRun = True
 delayTime = 1.0
