@@ -3,7 +3,7 @@ import time
 import json
 
 starttime = time.time()
-c = httplib.HTTPConnection('localhost', 8080)
+c = httplib.HTTPConnection('localhost', 8000)
 
 gestRun = True
 while gestRun:

@@ -1,6 +1,10 @@
 
 def init():
 
+    ''' Kitchenator State '''
+    global kitchenatorState
+    kitchenatorState = "standby" # active, standby
+
     ''' Arm State '''
     global armGoalState
     armGoalState = 'standby' # out of 'standby', 'go', 'pause'
@@ -12,7 +16,10 @@ def init():
     Vision-related states
     '''
     global ingredientPos 
-    ingredientPos = {'nutmeg': [0,0,0], 'ketamine': [0,0,0]}
+    ingredientPos = {'nutmeg': [0,0,0], 'ketamine': [0,0,0]}  # x,y,z
+    
+    global ingredientColorMap
+    ingredientColorMap = {'nutmeg': 'blue', 'ketamine': 'orange'}
 
     ''' Gesture State '''
     global gesture 
@@ -21,4 +28,4 @@ def init():
 
     ''' Goal Ingredient '''
     global goalIngredient
-    goalIngredient = 'ketamine'
+    goalIngredient = 'none'
