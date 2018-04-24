@@ -25,6 +25,3 @@ while armRun:
     doc = c.getresponse().read()
     print doc
     time.sleep(delayTime - ((time.time() - starttime) % delayTime))
-
-
-# 'All done'
