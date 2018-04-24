@@ -8,18 +8,34 @@ import time
 from collections import namedtuple
 
 # Constants
-HOME = True
+HOME = False
 
 if HOME:
     IMAGE_WIDTH = 640
     IMAGE_HEIGHT= 480
     
     FLIP_VALUE = -1
+    
+    COLORS = {
+        "black": ( 90, 120, 130),
+        "orange":(255, 150,  50),
+        "green": (180, 255, 110),
+        "blue":  ( 30, 200, 255),
+        "purple":(120,  90, 220)
+    }
 else:
     IMAGE_WIDTH =  1920/2
     IMAGE_HEIGHT = 1080/2
     
     FLIP_VALUE = 1
+    
+    COLORS = {
+        "black": ( 90, 120, 130),
+        "orange":(255, 150,  50),
+        "green": (180, 255, 110),
+        "blue":  ( 30, 200, 255),
+        "purple":(120,  90, 220)
+    }
 
 IMAGE_WINDOW_NAME = "Image"
 CONTROL_WINDOW_NAME = "Controls"
@@ -122,20 +138,10 @@ def find_pair(squares, c1, c2, lengths_between_centers, dist_tol, angle_tol_deg)
 
 # https://stackoverflow.com/questions/36439384/classifying-rgb-values-in-python
 def classify_color(rgb_tuple):
-    # eg. rgb_tuple = (2,44,300)
-
-    # add as many colors as appropriate here, but for
-    # the stated use case you just want to see if your
-    # pixel is 'more red' or 'more green'
-    colors = {
-        "black": (  0,   0,   0),
-        "red":   (255,   0,   0), #(255,   0,   0),
-        "green": (  0, 255,   0), #(  0, 255,   0),
-        "blue":  (  0,   0, 255)  #(  0,   0, 255)
-    }
+    global COLORS
     
     manhattan = lambda x,y : abs(x[0] - y[0]) + abs(x[1] - y[1]) + abs(x[2] - y[2])
-    distances = {k: manhattan(v, rgb_tuple) for k, v in colors.items()}
+    distances = {k: manhattan(v, rgb_tuple) for k, v in COLORS.items()}
     color = min(distances, key=distances.get)
     return color
     

@@ -15,12 +15,13 @@ ORIGIN_OFFSET_D_DIST =  0
 
 MAX_SQUARE_AGE = 5 # loop iterations
 
-PAIR_TOL = 0.1
-PAIR_ANGLE_TOL_DEG = 10
+PAIR_TOL = 0.3
+PAIR_ANGLE_TOL_DEG = 20
 
 BLACK_GREEN_SPACING_RATIO = 7.0/3.0 # MAKE SURE IT IS A FLOATING POINT RATIO
-BLACK_RED_SPACING_RATIO = 1.3
-BLACK_BLUE_SPACING_RATIO = 1.2
+BLACK_ORANGE_SPACING_RATIO = 1.1
+BLACK_BLUE_SPACING_RATIO = 1.1
+BLACK_PURPLE_SPACING_RATIO = 1.1
 
 # Variables
 origin_x = -1
@@ -31,13 +32,17 @@ green_x = -1
 green_y = -1
 green_rot = 0
 
-red_x = -1
-red_y = -1
-red_rot = 0
+orange_x = -1
+orange_y = -1
+orange_rot = 0
 
 blue_x = -1
 blue_y = -1
 blue_rot = 0
+
+purple_x = -1
+purple_y = -1
+purple_rot = 0
 
 pixels_per_unit_length = -1
 
@@ -54,6 +59,7 @@ while True:
     # Skip to the next iteration if an image can't be acquired.
     (grabbed, image) = camera().read()
     if not grabbed:
+        print 'no image acquired'
         continue
     
     # Get current values for canny adjustment parameters.
@@ -91,7 +97,7 @@ while True:
             continue
         
         # Surround detected squares in white.
-        cv2.drawContours(edited_image, [approx], -1, (255, 255, 255), 2)
+        cv2.drawContours(edited_image, [approx], -1, (0, 0, 0), 2)
         
         w = rect[1][0]
         h = rect[1][1]
@@ -131,6 +137,7 @@ while True:
     
     # Gotta find the reference point first, or else the math breaks
     if pixels_per_unit_length < 0:
+        print 'searching for reference'
         continue
     
     # Detect black and blue pair.
@@ -146,18 +153,31 @@ while True:
         # Surround squares together in blue rectangle.
         cv2.drawContours(edited_image, [bk_br], -1, (255, 0, 0), 2)
     
-    # Detect black and red pair.
-    (black, red) = find_pair(squares, "black", "red", BLACK_RED_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
+    # Detect black and orange pair.
+    (black, orange) = find_pair(squares, "black", "orange", BLACK_ORANGE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
     if black != None:
         squares.remove(black)
-        squares.remove(red)
+        squares.remove(orange)
         
-        red_x = black.x
-        red_y = black.y
-        (bk_rd, red_rot) = get_rectangle_for_squares(black, red)
+        orange_x = black.x
+        orange_y = black.y
+        (bk_rd, orange_rot) = get_rectangle_for_squares(black, orange)
         
-        # Surround squares together in red rectangle.
+        # Surround squares together in orange rectangle.
         cv2.drawContours(edited_image, [bk_rd], -1, (0, 0, 255), 2)
+    
+    # Detect black and purple pair.
+    (black, purple) = find_pair(squares, "black", "purple", BLACK_PURPLE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
+    if black != None:
+        squares.remove(black)
+        squares.remove(purple)
+        
+        purple_x = black.x
+        purple_y = black.y
+        (bk_rd, purple_rot) = get_rectangle_for_squares(black, purple)
+        
+        # Surround squares together in purple rectangle.
+        cv2.drawContours(edited_image, [bk_rd], -1, (150, 0, 150), 2)
     
     # Update lifetime status of current squares.
     for i in range(len(squares)-1, -1, -1):
@@ -168,30 +188,6 @@ while True:
         else:
             square = square._replace(age=square.age+1)
             squares.append(square)
-    
-    # Draw out measurement grid overlay.
-    #if origin_x >= 0 and origin_y >= 0:
-    #    UNITS_RIGHT_MAX = 50
-    #    UNITS_DOWN_MAX = UNITS_RIGHT_MAX
-    #    UNITS_STEP = 5
-    #    
-    #    for steps_right in range(-UNITS_RIGHT_MAX, UNITS_RIGHT_MAX + UNITS_STEP, UNITS_STEP):
-    #        for steps_down in range(-UNITS_DOWN_MAX, UNITS_DOWN_MAX + UNITS_STEP, UNITS_STEP):
-    #            offset_r = steps_right * pixels_per_unit_length
-    #            offset_d = steps_down * pixels_per_unit_length
-    #            
-    #            (x, y) = apply_transform((origin_x, origin_y), origin_rot, (offset_r, offset_d), True)
-    #            
-    #            if steps_right == 0 and steps_down == 0:
-    #                color = (0, 255, 255)
-    #            elif steps_right > 0 and steps_down == 0:
-    #                color = (0, 200, 200)
-    #            elif steps_right == 0 or steps_down == 0:
-    #                color = (0, 0, 0)
-    #            else:
-    #                color = (80, 80, 80)
-    #            
-    #            cv2.circle(edited_image, (x, y), 3, color)
     
     # Label last known position of green.
     if green_x >= 0 and green_y >= 0:
@@ -223,11 +219,11 @@ while True:
         )
         cv2.putText(edited_image, pos_str, (blue_x + 5, blue_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 2)
     
-    # Label last known position of red.
-    if red_x >= 0 and red_y >= 0:
-        cv2.circle(edited_image, (red_x, red_y), 3, (0, 0, 255))
+    # Label last known position of orange.
+    if orange_x >= 0 and orange_y >= 0:
+        cv2.circle(edited_image, (orange_x, orange_y), 3, (0, 0, 255))
         
-        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (red_x, red_y))
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (orange_x, orange_y))
         right = right / pixels_per_unit_length
         down = down / pixels_per_unit_length
         
@@ -236,7 +232,22 @@ while True:
             down,
             DISTANCE_UNITS
         )
-        cv2.putText(edited_image, pos_str, (red_x + 5, red_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
+        cv2.putText(edited_image, pos_str, (orange_x + 5, orange_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
+    
+    # Label last known position of purple.
+    if purple_x >= 0 and purple_y >= 0:
+        cv2.circle(edited_image, (purple_x, purple_y), 3, (150, 0, 150))
+        
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (purple_x, purple_y))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+        
+        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
+            right,
+            down,
+            DISTANCE_UNITS
+        )
+        cv2.putText(edited_image, pos_str, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
         
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
