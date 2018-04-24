@@ -9,7 +9,7 @@ from . import states
 @get('/getArmGoals')
 def getArmGoals():
     data = {}
-    data['armGoalState'] = armGoalState
-    data['armGoalPose'] = armGoalPose
+    data['armGoalState'] = states.armGoalState
+    data['armGoalPose'] = states.armGoalPose
     json_data = json.dumps(data)
     return json_data

@@ -8,9 +8,8 @@ from . import states
 '''
 @get('/getGoalIngredient')
 def getGoalIngredient():
-    req_obj = json.loads(request.body.read())
-    # print(req_obj)
-    global goalPose
-    goalPose = req_obj["goalPose"]
-    return 'goalPose set to {}!'.format(goalPose)
+    data = {}
+    data['goalIngredient'] = states.goalIngredient
+    json_data = json.dumps(data)
+    return json_data
 

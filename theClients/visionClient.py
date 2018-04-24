@@ -6,9 +6,15 @@ starttime = time.time()
 c = httplib.HTTPConnection('localhost', 8080)
 
 gestRun = True
-queryPeriod = 1.5;
+queryPeriod = 1
 while gestRun:
-    c.request('POST', '/getGoalIngredient', '{}')
+    c.request('GET', '/getGoalIngredient')
     doc = c.getresponse().read()
-    print doc
+    if doc != "none":
+        ''' 
+            Determine ingredient location here
+        '''
+
+        # c.request('SET', '/setGoalIngredientPos')
+    
     time.sleep(queryPeriod - ((time.time() - starttime) % queryPeriod))

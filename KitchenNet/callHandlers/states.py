@@ -17,3 +17,8 @@ def init():
     ''' Gesture State '''
     global gesture 
     gesture = 0
+
+
+    ''' Goal Ingredient '''
+    global goalIngredient
+    goalIngredient = 'ketamine'
