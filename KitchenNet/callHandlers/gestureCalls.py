@@ -1,8 +1,7 @@
 from bottle import post, request
 import json 
 
-''' Gesture State '''
-gesture = 0
+from . import states
 
 '''
     All gesture related calls, updating the 'gesture' state in bottleService.py
