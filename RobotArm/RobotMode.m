@@ -1,6 +1,6 @@
 classdef RobotMode
     enumeration
-       IDLE, GOAL, MOVE, STOP
+       IDLE, PLAN, MOVE, STOP
     end
 end
 
