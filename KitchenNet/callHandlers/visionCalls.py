@@ -7,7 +7,7 @@ from . import states
     All vision related calls, updating the ???
 '''
 @get('/getGoalIngredient')
-def getGoalIngredient():
+def getGoalColor():
     data = {}
     data['goalIngredient'] = states.goalIngredient
     json_data = json.dumps(data)
