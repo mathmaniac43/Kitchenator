@@ -9,10 +9,10 @@ from k_vision_helpers import *
 
 # Constants
 DISTANCE_UNITS = "cm"
-BLACK_GREEN_DISTANCE = 7 * 2.54
+BLACK_GREEN_DISTANCE = 8.8
 DISTANCE_TO_M = 0.01
 
-ORIGIN_OFFSET_R_DIST = -13.5
+ORIGIN_OFFSET_R_DIST = -13
 ORIGIN_OFFSET_D_DIST =  0
 
 MAX_SQUARE_AGE = 5 # loop iterations
@@ -20,8 +20,8 @@ MAX_SQUARE_AGE = 5 # loop iterations
 PAIR_TOL = 0.3
 PAIR_ANGLE_TOL_DEG = 20
 
-BLACK_GREEN_SPACING_RATIO = 7.0/3.0 # MAKE SURE IT IS A FLOATING POINT RATIO
-BLACK_ORANGE_SPACING_RATIO = 1.1
+BLACK_GREEN_SPACING_RATIO = 1.2 # MAKE SURE IT IS A FLOATING POINT RATIO
+BLACK_ORANGE_SPACING_RATIO = 1.2
 BLACK_BLUE_SPACING_RATIO = 1.1
 BLACK_PURPLE_SPACING_RATIO = 1.1
 
@@ -210,7 +210,8 @@ while True:
             "green",
             right * DISTANCE_TO_M,
             down * DISTANCE_TO_M,
-            numpy.rad2deg(green_rot)
+            green_rot,
+            origin_rot
         )
         
         cv2.putText(edited_image, green_json, (green_x + 5, green_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
