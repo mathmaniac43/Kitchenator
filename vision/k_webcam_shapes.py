@@ -1,6 +1,7 @@
 import argparse
 import cv2
 import imutils
+import json
 import math
 import time
 
@@ -9,6 +10,7 @@ from k_vision_helpers import *
 # Constants
 DISTANCE_UNITS = "cm"
 BLACK_GREEN_DISTANCE = 7 * 2.54
+DISTANCE_TO_M = 0.01
 
 ORIGIN_OFFSET_R_DIST = -13.5
 ORIGIN_OFFSET_D_DIST =  0
@@ -35,14 +37,17 @@ green_rot = 0
 orange_x = -1
 orange_y = -1
 orange_rot = 0
+orange_json = '"orange" : null'
 
 blue_x = -1
 blue_y = -1
 blue_rot = 0
+blue_json = '"blue" : null'
 
 purple_x = -1
 purple_y = -1
 purple_rot = 0
+purple_json = '"purple" : null'
 
 pixels_per_unit_length = -1
 
@@ -112,7 +117,8 @@ while True:
     
     # Detect black and green pair.
     (black, green) = find_pair(squares, "black", "green", BLACK_GREEN_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
-    if black != None:
+    green_update = (green != None)
+    if green_update:
         squares.remove(black)
         squares.remove(green)
         
@@ -142,7 +148,8 @@ while True:
     
     # Detect black and blue pair.
     (black, blue) = find_pair(squares, "black", "blue", BLACK_BLUE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
-    if black != None:
+    blue_update = (blue != None)
+    if blue_update:
         squares.remove(black)
         squares.remove(blue)
         
@@ -155,7 +162,8 @@ while True:
     
     # Detect black and orange pair.
     (black, orange) = find_pair(squares, "black", "orange", BLACK_ORANGE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
-    if black != None:
+    orange_update = (orange != None)
+    if orange_update:
         squares.remove(black)
         squares.remove(orange)
         
@@ -168,7 +176,8 @@ while True:
     
     # Detect black and purple pair.
     (black, purple) = find_pair(squares, "black", "purple", BLACK_PURPLE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
-    if black != None:
+    purple_update = (purple != None)
+    if purple_update:
         squares.remove(black)
         squares.remove(purple)
         
@@ -197,27 +206,14 @@ while True:
         right = right / pixels_per_unit_length
         down = down / pixels_per_unit_length
         
-        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
-            right,
-            down,
-            DISTANCE_UNITS
+        green_json = to_position_json(
+            "green",
+            right * DISTANCE_TO_M,
+            down * DISTANCE_TO_M,
+            numpy.rad2deg(green_rot)
         )
-        cv2.putText(edited_image, pos_str, (green_x + 5, green_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
-    
-    # Label last known position of blue.
-    if blue_x >= 0 and blue_y >= 0:
-        cv2.circle(edited_image, (blue_x, blue_y), 3, (255, 80, 80))
         
-        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (blue_x, blue_y))
-        right = right / pixels_per_unit_length
-        down = down / pixels_per_unit_length
-        
-        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
-            right,
-            down,
-            DISTANCE_UNITS
-        )
-        cv2.putText(edited_image, pos_str, (blue_x + 5, blue_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 2)
+        cv2.putText(edited_image, green_json, (green_x + 5, green_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
     
     # Label last known position of orange.
     if orange_x >= 0 and orange_y >= 0:
@@ -226,13 +222,32 @@ while True:
         (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (orange_x, orange_y))
         right = right / pixels_per_unit_length
         down = down / pixels_per_unit_length
-        
-        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
-            right,
-            down,
-            DISTANCE_UNITS
+
+        orange_json = to_position_json(
+            "orange",
+            right * DISTANCE_TO_M,
+            down * DISTANCE_TO_M,
+            orange_rot,
+            origin_rot
         )
-        cv2.putText(edited_image, pos_str, (orange_x + 5, orange_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
+        cv2.putText(edited_image, orange_json, (orange_x + 5, orange_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
+    
+    # Label last known position of blue.
+    if blue_x >= 0 and blue_y >= 0:
+        cv2.circle(edited_image, (blue_x, blue_y), 3, (255, 80, 80))
+        
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (blue_x, blue_y))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+
+        blue_json = to_position_json(
+            "blue",
+            right * DISTANCE_TO_M,
+            down * DISTANCE_TO_M,
+            blue_rot,
+            origin_rot
+        )
+        cv2.putText(edited_image, blue_json, (blue_x + 5, blue_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 2)
     
     # Label last known position of purple.
     if purple_x >= 0 and purple_y >= 0:
@@ -241,14 +256,20 @@ while True:
         (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (purple_x, purple_y))
         right = right / pixels_per_unit_length
         down = down / pixels_per_unit_length
-        
-        pos_str = 'r=%02.1f,d=%02.1f(%s)' % (
-            right,
-            down,
-            DISTANCE_UNITS
+
+        purple_json = to_position_json(
+            "purple",
+            right * DISTANCE_TO_M,
+            down * DISTANCE_TO_M,
+            purple_rot,
+            origin_rot
         )
-        cv2.putText(edited_image, pos_str, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
-        
+        cv2.putText(edited_image, purple_json, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
+    
+    # Handle json
+    full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
+    print(full_json)
+    
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
         cv2.circle(edited_image, (origin_x, origin_y), 3, (0, 255, 255))

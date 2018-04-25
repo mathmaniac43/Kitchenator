@@ -1,6 +1,7 @@
 import argparse
 import cv2
 import imutils
+import json
 import math
 import numpy
 import time
@@ -203,6 +204,25 @@ def inverse_transform(center, theta, point, pixel = False):
     new_center = (0, 0)
     new_point = (point[0] - center[0], point[1] - center[1])
     return apply_transform(new_center, -theta, new_point, pixel)
+
+def to_position_json(c, right, down, rot, origin_rot):
+    # Assume that origin is at center of robot, with right
+    # along the robot's +Y axis and down along the robot's +X axis
+    # (Tag to right, green stretched left)
+    
+    x = down
+    y = right
+    
+    # zero in line with origin's right axis, clockwise
+    zero_rel_rot = rot - origin_rot
+    
+    # zero in line with origin's right axis, counterclockwise
+    neg_zero_rel_rot = -zero_rel_rot
+    
+    # zero in line with robot's +X axis, counterclockwise
+    x_rot = numpy.rad2deg(neg_zero_rel_rot + math.pi/2)
+    
+    return '"%s" : { "x" : %f, "y" : %f, "rot" : %f }' % (c, x, y, x_rot)
     
     
 def setup_gui():
