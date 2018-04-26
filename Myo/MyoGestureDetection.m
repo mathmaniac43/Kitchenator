@@ -162,7 +162,7 @@ end
 
 emgData2 = [emgData2(:,1:24) zeros(1000,1) emgData2(:,25)];
 
-emgData2(:,25)=emgData2(:,19)*128 + emgData2(:,18)*64 + emgData2(:,20)*32 + emgData2(:,23)*16 + emgData2(:,21)*8 + emgData2(:,17)*4 + emgData2(:,22)*2 + emgData2(:,24)*1;
+emgData2(:,25)=emgData2(:,17)*128 + emgData2(:,18)*64 + emgData2(:,19)*32 + emgData2(:,20)*16 + emgData2(:,21)*8 + emgData2(:,22)*4 + emgData2(:,23)*2 + emgData2(:,24)*1;
 
 for i=Intent:1:1000
     emgData2(i,25)=round(sum(emgData2(i-(Intent-1):i,25)/Intent));
@@ -174,7 +174,7 @@ value = sum(emgData2(:,25))/1000
 if value > 200
     %gesture is GO
     gesture = 1
-elseif value > 100
+elseif value > 30
     %gesture is STOP
     gesture = 2
 else
