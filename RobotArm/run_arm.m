@@ -14,20 +14,24 @@ use_velocity = 0;
 use_cartesian_traj = 1;
 use_joint_traj = 0;
 N_steps = 30;
+use_connection = 1;
+use_robot = 0;
 
 %% Configuration
 
-
-ip_address = 'http://127.0.0.1:8000';
-r = RequestMessage;
-uri = URI(ip_address);
+tcp_ip = 'localhost';
+tcp_port = 5000;
+tcp_socket = tcpclient(tcp_ip, tcp_port);
+fopen(tcp_socket);
 %%
 
-% Goto MiniVIE equivalent
-% my_dir = pwd;
-% cd('C:\git\minivie') 
-% MiniVIE.configurePath();
-% cd(my_dir)
+if (use_robot)
+    Goto MiniVIE equivalent
+    my_dir = pwd;
+    cd('C:\git\minivie') 
+    MiniVIE.configurePath();
+    cd(my_dir)
+end
 
 % Load robotics toolbox model
 mdl_cyton
@@ -45,23 +49,33 @@ stop_cmd = 0; goal_cmd = 0;
 goal_msg = [0 0 0];
 
 while (1)
-    goal_msg = input('goal_msg');
-    goal_cmd = length(goal_msg);
-    
+
+    goal_cmd = 0;
     % Check for new goalpoints
-    resp = send(r,uri);
-    goal_msg = jsondecode(resp);
-    status = resp.StatusCode
+    if (use_connection)
+        if (tcp_socket.BytesAvailable)
+            bytes = read(tcp_socket)
+            goal_msg = jsondecode(bytes);
+        end
+        status = resp.StatusCode
+    elseif (robot.mode == RobotMode.IDLE);
+        goal_raw = input('goal_msg: ');
+        if (~isempty(goal_raw))
+            goal_msg = jsondecode(goal_raw);
+            goal_cmd = length(goal_msg);
+        end
+    end
     
     if (goal_cmd)
-        robot.T_goal = SE3(transl(goal_msg.goal)*rotz(goal_msg.yaw,'deg'));
-        robot.mode = RobotMode.PLAN;
+        % Check for stop signal
+        if (goal_msg.stop)
+            robot.mode = RobotMode.STOP;
+        else
+            robot.T_goal = SE3(transl([goal_msg.x, goal_msg.y, goal_msg.z])*trotz(goal_msg.yaw,'deg'));
+            robot.mode = RobotMode.PLAN;
+        end
     end
-    % Check for stop signal
-    if (stop_cmd)
-        robot.mode = RobotMode.STOP;
-    end
-        
+    
     % Move (or not)
     if (robot.mode == RobotMode.STOP)
         disp('stop');
@@ -73,7 +87,8 @@ while (1)
         if (use_cartesian_traj)
             %% Using cartesian trajectory
             robot.T_traj = ctraj(robot.T_current, robot.T_goal, N_steps);
-            robot.q_traj = cyton.ikine(robot.T_traj);
+            mask = [0;0;0;1;1;1];
+            robot.q_traj = cyton.ikine(robot.T_traj,'q0',robot.q_current,'pinv', 'mask', mask);
         elseif (use_joint_traj)
             %% Using joint trajectory
             robot.q_traj = jtraj(robot.q_current, robot.q_goal, N_steps);
@@ -86,6 +101,7 @@ while (1)
         else
             robot.mode = RobotMode.MOVE;
             robot.t_current = 1;
+            robot.update(robot.q_current);
         end
     elseif (robot.mode == RobotMode.MOVE)
         disp('move')
@@ -102,17 +118,24 @@ while (1)
         disp(robot.q_next)
        
         if isempty(robot.q_next)
-            error('Invalid next position')
+            warning('Invalid next position')
             robot.mode = RobotMode.IDLE;
         else
-            robot.sim(q_desired);
-            confirm = input('confirm? y/n', 's');
-            
-            % Send to robot
-            if (confirm == 'y')
-                disp('sent joints')
-                robot.move(q_desired, robot.open_gripper);
-                done = robot.update(q_desired);
+            robot.sim(robot.q_next);
+            if (use_robot)
+                confirm = input('confirm? y/n', 's');
+
+                % Send to robot
+                if (confirm == 'y')
+                    disp('sent joints')
+                    robot.move(robot.q_next, robot.open_gripper);
+                    done = robot.update(robot.q_next);
+                    if (done)
+                        robot.mode = RobotMode.IDLE;
+                    end
+                end
+            else
+                done = robot.update(robot.q_next);
                 if (done)
                     robot.mode = RobotMode.IDLE;
                 end
