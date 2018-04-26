@@ -1,12 +1,14 @@
 %load('Fiona2.mat')
-
 hMyo = Inputs.MyoUdp.getInstance();
 hMyo.initialize();
 
+emgData2init = hMyo.getData;
+emgData2init = hMyo.getData;
 emgData2 = hMyo.getData;
-plot(emgData2)
-xlabel('Sample Number'); ylabel('EMG Signal') 
-hViewer = GUIs.guiSignalViewer(hMyo);
+
+%plot(emgData2)
+%xlabel('Sample Number'); ylabel('EMG Signal') 
+%hViewer = GUIs.guiSignalViewer(hMyo);
 
 
 for i=1:1:1000
@@ -19,27 +21,27 @@ emgData2(:,16) = 0;
 
 DC_Avg=500; % number of samples to average for the DC subtraction
 LPF=200;
-Intent = 100;
+Intent = 200;
 
 %amplify data
 emgData2 = emgData2*10;
 
 %plot original amplified data
-figure(1)
-subplot(4,2,1);plot(emgData2(:,17),emgData2(:,1));
-subplot(4,2,2);plot(emgData2(:,17),emgData2(:,2));
-subplot(4,2,3);plot(emgData2(:,17),emgData2(:,3));
-subplot(4,2,4);plot(emgData2(:,17),emgData2(:,4));
-subplot(4,2,5);plot(emgData2(:,17),emgData2(:,5));
-subplot(4,2,6);plot(emgData2(:,17),emgData2(:,6));
-subplot(4,2,7);plot(emgData2(:,17),emgData2(:,7));
-subplot(4,2,8);plot(emgData2(:,17),emgData2(:,8));
+%figure(1)
+%subplot(4,2,1);plot(emgData2(:,17),emgData2(:,1));
+%subplot(4,2,2);plot(emgData2(:,17),emgData2(:,2));
+%subplot(4,2,3);plot(emgData2(:,17),emgData2(:,3));
+%subplot(4,2,4);plot(emgData2(:,17),emgData2(:,4));
+%subplot(4,2,5);plot(emgData2(:,17),emgData2(:,5));
+%subplot(4,2,6);plot(emgData2(:,17),emgData2(:,6));
+%subplot(4,2,7);plot(emgData2(:,17),emgData2(:,7));
+%subplot(4,2,8);plot(emgData2(:,17),emgData2(:,8));
 
-figure(5)
-subplot(1,1,1);plot(emgData2(:,17),emgData2(:,1),'b',emgData2(:,17),emgData2(:,2),...
-   'g',emgData2(:,17),emgData2(:,3),'r',emgData2(:,17),emgData2(:,4),'c',...
-   emgData2(:,17),emgData2(:,5),'m',emgData2(:,17),emgData2(:,6),'k',emgData2(:,17),...
-   emgData2(:,7),'y',emgData2(:,17),emgData2(:,8),'c')
+%figure(5)
+%subplot(1,1,1);plot(emgData2(:,17),emgData2(:,1),'b',emgData2(:,17),emgData2(:,2),...
+%   'g',emgData2(:,17),emgData2(:,3),'r',emgData2(:,17),emgData2(:,4),'c',...
+ %  emgData2(:,17),emgData2(:,5),'m',emgData2(:,17),emgData2(:,6),'k',emgData2(:,17),...
+  % emgData2(:,7),'y',emgData2(:,17),emgData2(:,8),'c')
 
 %take absolute value
 %emgData(:,9) = abs(emgData(:,1));
@@ -84,15 +86,15 @@ emgData2(1:DC_Avg-1,14)=emgData2(DC_Avg,14);
 emgData2(1:DC_Avg-1,15)=emgData2(DC_Avg,15);
 emgData2(1:DC_Avg-1,16)=emgData2(DC_Avg,16);
 
-figure(7)
-subplot(4,2,1);plot(emgData2(:,17),emgData2(:,9))
-subplot(4,2,2);plot(emgData2(:,17),emgData2(:,10))
-subplot(4,2,3);plot(emgData2(:,17),emgData2(:,11))
-subplot(4,2,4);plot(emgData2(:,17),emgData2(:,12))
-subplot(4,2,5);plot(emgData2(:,17),emgData2(:,13))
-subplot(4,2,6);plot(emgData2(:,17),emgData2(:,14))
-subplot(4,2,7);plot(emgData2(:,17),emgData2(:,15))
-subplot(4,2,8);plot(emgData2(:,17),emgData2(:,16))
+%figure(7)
+%subplot(4,2,1);plot(emgData2(:,17),emgData2(:,9))
+%subplot(4,2,2);plot(emgData2(:,17),emgData2(:,10))
+%subplot(4,2,3);plot(emgData2(:,17),emgData2(:,11))
+%subplot(4,2,4);plot(emgData2(:,17),emgData2(:,12))
+%subplot(4,2,5);plot(emgData2(:,17),emgData2(:,13))
+%subplot(4,2,6);plot(emgData2(:,17),emgData2(:,14))
+%subplot(4,2,7);plot(emgData2(:,17),emgData2(:,15))
+%subplot(4,2,8);plot(emgData2(:,17),emgData2(:,16))
 
 %subtract dc offset from original signal
 emgData2(:,9) = abs(emgData2(:,1) - emgData2(:,9));
@@ -104,15 +106,15 @@ emgData2(:,14) = abs(emgData2(:,6) - emgData2(:,14));
 emgData2(:,15) = abs(emgData2(:,7) - emgData2(:,15));
 emgData2(:,16) = abs(emgData2(:,8) - emgData2(:,16));
 
-figure(8)
-subplot(4,2,1);plot(emgData2(:,17),emgData2(:,9))
-subplot(4,2,2);plot(emgData2(:,17),emgData2(:,10))
-subplot(4,2,3);plot(emgData2(:,17),emgData2(:,11))
-subplot(4,2,4);plot(emgData2(:,17),emgData2(:,12))
-subplot(4,2,5);plot(emgData2(:,17),emgData2(:,13))
-subplot(4,2,6);plot(emgData2(:,17),emgData2(:,14))
-subplot(4,2,7);plot(emgData2(:,17),emgData2(:,15))
-subplot(4,2,8);plot(emgData2(:,17),emgData2(:,16))
+%figure(8)
+%subplot(4,2,1);plot(emgData2(:,17),emgData2(:,9))
+%subplot(4,2,2);plot(emgData2(:,17),emgData2(:,10))
+%subplot(4,2,3);plot(emgData2(:,17),emgData2(:,11))
+%subplot(4,2,4);plot(emgData2(:,17),emgData2(:,12))
+%subplot(4,2,5);plot(emgData2(:,17),emgData2(:,13))
+%subplot(4,2,6);plot(emgData2(:,17),emgData2(:,14))
+%subplot(4,2,7);plot(emgData2(:,17),emgData2(:,15))
+%subplot(4,2,8);plot(emgData2(:,17),emgData2(:,16))
 
 %add some new columns to the datapoint
 emgData2 = [emgData2(:,1:16) zeros(1000,8) emgData2(:,17)];
@@ -138,15 +140,15 @@ emgData2(1:LPF-1,22)=emgData2(LPF,22);
 emgData2(1:LPF-1,23)=emgData2(LPF,23);
 emgData2(1:LPF-1,24)=emgData2(LPF,24);
 
-figure(9)
-subplot(4,2,1);plot(emgData2(:,25),emgData2(:,17))
-subplot(4,2,2);plot(emgData2(:,25),emgData2(:,18))
-subplot(4,2,3);plot(emgData2(:,25),emgData2(:,19))
-subplot(4,2,4);plot(emgData2(:,25),emgData2(:,20))
-subplot(4,2,5);plot(emgData2(:,25),emgData2(:,21))
-subplot(4,2,6);plot(emgData2(:,25),emgData2(:,22))
-subplot(4,2,7);plot(emgData2(:,25),emgData2(:,23))
-subplot(4,2,8);plot(emgData2(:,25),emgData2(:,24))
+%figure(9)
+%subplot(4,2,1);plot(emgData2(:,25),emgData2(:,17))
+%subplot(4,2,2);plot(emgData2(:,25),emgData2(:,18))
+%subplot(4,2,3);plot(emgData2(:,25),emgData2(:,19))
+%subplot(4,2,4);plot(emgData2(:,25),emgData2(:,20))
+%subplot(4,2,5);plot(emgData2(:,25),emgData2(:,21))
+%subplot(4,2,6);plot(emgData2(:,25),emgData2(:,22))
+%subplot(4,2,7);plot(emgData2(:,25),emgData2(:,23))
+%subplot(4,2,8);plot(emgData2(:,25),emgData2(:,24))
 
 for i=1:1:1000
     for j=17:1:24
@@ -163,19 +165,20 @@ emgData2 = [emgData2(:,1:24) zeros(1000,1) emgData2(:,25)];
 emgData2(:,25)=emgData2(:,19)*128 + emgData2(:,18)*64 + emgData2(:,20)*32 + emgData2(:,23)*16 + emgData2(:,21)*8 + emgData2(:,17)*4 + emgData2(:,22)*2 + emgData2(:,24)*1;
 
 for i=Intent:1:1000
-    emgData2(i,25)=sum(emgData2(i-(Intent-1):i,25)/Intent);
+    emgData2(i,25)=round(sum(emgData2(i-(Intent-1):i,25)/Intent));
 end
 emgData2(1:Intent,25)=emgData2(Intent,25);
 
 value = sum(emgData2(:,25))/1000
 
-if value > 220
+if value > 200
     %gesture is GO
     gesture = 1
-elseif value > 30
+elseif value > 100
     %gesture is STOP
     gesture = 2
 else
     %no valid gesture
     gesture = 0
 end
+jsonencode({'gesture',gesture})
