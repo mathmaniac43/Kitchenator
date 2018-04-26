@@ -2,13 +2,13 @@ import socket
 import sys
 import time
 
-s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sV = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-s1_address = ('localhost', 8000)
+sV_address = ('localhost', 8000)
 #s2_address = ('localhost', 8001)
 
-s1.bind(s1_address)
+sV.bind(sV_address)
 #s2.bind(s2_address)
 
 s1.listen(1)
