@@ -232,7 +232,7 @@ def setup_gui():
     global CANNY_MAX_TRACKBAR_NAME
 
     cv2.namedWindow(CONTROL_WINDOW_NAME)
-    cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 1, 3, camera_selector_callback)
+    cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 0, 3, camera_selector_callback)
     cv2.createTrackbar(CANNY_MIN_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 120, 255, trackbar_callback)
     cv2.createTrackbar(CANNY_MAX_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 180, 255, trackbar_callback)
     
@@ -240,7 +240,7 @@ def setup_gui():
     cv2.setMouseCallback(IMAGE_WINDOW_NAME, mouse_callback)
 
 
-    camera_selector_callback(cv2.getTrackbarPos(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME)) # default to the first camera value
+    camera_selector_callback(0) # default to the first camera value
     time.sleep(2)
 
 def close_gui():
