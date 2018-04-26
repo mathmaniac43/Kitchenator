@@ -14,17 +14,18 @@ use_velocity = 0;
 use_cartesian_traj = 1;
 use_joint_traj = 0;
 N_steps = 30;
-use_connection = 1;
+use_connection = 0;
 use_robot = 0;
 
 %% Configuration
 
 tcp_ip = 'localhost';
 tcp_port = 5000;
-tcp_socket = tcpclient(tcp_ip, tcp_port);
-fopen(tcp_socket);
 %%
-
+if (use_connection)
+    tcp_socket = tcpclient(tcp_ip, tcp_port);
+    fopen(tcp_socket);
+end
 if (use_robot)
     Goto MiniVIE equivalent
     my_dir = pwd;
@@ -87,7 +88,7 @@ while (1)
         if (use_cartesian_traj)
             %% Using cartesian trajectory
             robot.T_traj = ctraj(robot.T_current, robot.T_goal, N_steps);
-            mask = [0;0;0;1;1;1];
+            mask = [1;1;1;0;0;0];
             robot.q_traj = cyton.ikine(robot.T_traj,'q0',robot.q_current,'pinv', 'mask', mask);
         elseif (use_joint_traj)
             %% Using joint trajectory
