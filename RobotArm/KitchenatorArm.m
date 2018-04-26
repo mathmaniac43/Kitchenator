@@ -57,6 +57,7 @@ classdef KitchenatorArm < handle
                 done = 1;
             else
                 obj.q_next = obj.q_traj(obj.t_current,:);
+                done = 0;
             end
         end
     end
