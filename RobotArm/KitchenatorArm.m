@@ -1,4 +1,4 @@
-classdef KitchenatorArm
+classdef KitchenatorArm < handle
     %KITCHENATORARM Class for Cyton E1500
     %   Detailed explanation goes here
     
@@ -8,7 +8,14 @@ classdef KitchenatorArm
         udp
         sim_robot
         mode
-        goal
+        T_goal
+        q_goal
+        T_traj
+        q_traj
+        T_current
+        q_current
+        t_current
+        q_next
     end
     
     methods
@@ -37,12 +44,20 @@ classdef KitchenatorArm
         end
         
         function stop(obj)
-            % TODO: figure out how to pack enable/disable hardware command
-            %obj.udp.putData(typecast(,'uint8'));
+            disp('Stopping...');
+            % Do nothing for now...
         end
         
-        function set_goal(obj, goal)
-            obj.goal = goal;
+        function done = update(obj, joints)
+            disp(joints)
+            obj.q_current = joints;
+            obj.T_current = obj.sim_robot.fkine(obj.q_current);
+            obj.t_current = obj.t_current+1;
+            if (obj.t_current > size(obj.q_traj,1))
+                done = 1;
+            else
+                obj.q_next = obj.q_traj(obj.t_current,:);
+            end
         end
     end
 end
