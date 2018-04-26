@@ -6,7 +6,7 @@ import socket
 import sys
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', 8000)
+server_address = ('localhost', 8001)
 sock.connect(server_address)
 sock.settimeout(0.05)
 sock.sendall('woke up')
