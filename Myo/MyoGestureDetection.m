@@ -3,6 +3,7 @@ hMyo = Inputs.MyoUdp.getInstance();
 hMyo.initialize();
 
 emgData2init = hMyo.getData;
+emgData2init = hMyo.getData;
 emgData2 = hMyo.getData;
 
 %plot(emgData2)
@@ -20,7 +21,7 @@ emgData2(:,16) = 0;
 
 DC_Avg=500; % number of samples to average for the DC subtraction
 LPF=200;
-Intent = 100;
+Intent = 200;
 
 %amplify data
 emgData2 = emgData2*10;
