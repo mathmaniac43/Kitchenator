@@ -6,35 +6,53 @@ import time
 
 from callHandlers import states # states.py maintains all Kitchenator states
 
+print 'start'
 states.init()
 
+''' Vision Stuff '''
 colorOfInterest = 'none'
-
 sV = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-vSocket = 8001
+vSocket = 51123
 sV_address = ('127.0.0.1', vSocket)
-#s2_address = ('localhost', 8001)
 sV.bind(sV_address)
-#s2.bind(s2_address)
 sV.listen(1)
 cV, cV_address = sV.accept()
-print(cV.recv(4096))
+
+''' Myo Stuff '''
+sM = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+mSocket = 51127
+mV_address = ('127.0.0.1', mSocket)
+sM.bind(sM_address)
+sM.listen(1)
+cM, cM_address = sM.accept()
+
+
 
 while True:
     
+    # if states.kitchenatorState == 'standby':
     '''
     Check Vision Client first
     '''
     
     print 'trying Vision on %d' % vSocket
     try:
-        cV.sendall('k')
-        s = cV.recv(4096)
-        print(s)
+        data = {}
+        data['goalIngredient'] = 'nutmeg'
+        json_data = json.dumps(data)
+        cV.sendto(json_data, cV_address)
+        try:
+            s = cV.recv(1)
+        except socket.timeout, e:
+            print("timeout, failed to receive")
+        print(s + '\n')
         
-    finally:
-        print 'oops'
+    except Exception, e:
+        print(e)
+        print 'shit hit the fan'
+        print('****')
+
+    time.sleep(1)
 
 
 cV.close()

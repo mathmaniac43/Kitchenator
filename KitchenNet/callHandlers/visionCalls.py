@@ -13,7 +13,4 @@ def getGoalColor():
     json_data = json.dumps(data)
     return json_data
 
-<<<<<<< HEAD
-=======
 # TODO: ('setGoalArmPosition')
->>>>>>> 5c23b260c076676a14c51ca81fda9ffd7143c569

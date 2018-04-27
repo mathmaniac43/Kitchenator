@@ -16,6 +16,7 @@ classdef KitchenatorArm < handle
         q_current
         t_current
         q_next
+        T_world = SE3(transl(0,.5,0));
     end
     
     methods

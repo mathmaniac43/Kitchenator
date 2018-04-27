@@ -42,12 +42,30 @@ mdl_cyton
 % udp_connection.initialize();
 udp_connection = '';
 
+% Initialize occupancy grid
+base_radius = 0.15;
+resolution = 100;
+world_x = 1;
+world_y = 1;
+
+map = robotics.BinaryOccupancyGrid(world_x,world_y,resolution);
+setOccupancy(map, [0 world_y/2], 1);
+inflate(map, base_radius);
+y = 0:1/resolution:world_y;
+x = zeros(size(y));
+setOccupancy(map, [x' y'], 1);
+
+prm = robotics.PRM;
+prm.Map = map;
+prm.NumNodes = 100;
+
 % Initialize robot arm
 robot = KitchenatorArm(udp_connection, cyton);
 robot.T_goal = SE3(transl(0.3, 0.3, 0.05));
 robot.update(qr);
 stop_cmd = 0; goal_cmd = 0;
 goal_msg = [0 0 0];
+robot.T_world = SE3(transl(0, world_y/2,0));
 
 while (1)
 
@@ -60,7 +78,7 @@ while (1)
         end
         status = resp.StatusCode
     elseif (robot.mode == RobotMode.IDLE);
-        goal_raw = input('goal_msg: ');
+        goal_raw = input('goal_msg: (e.g. {"x":0.3,"y":0.3,"z":0.1,"yaw":0,"mode":"go","mask":[1,1,1,1,1,1]})\n');
         if (~isempty(goal_raw))
             goal_msg = jsondecode(goal_raw);
             goal_cmd = length(goal_msg);
@@ -69,11 +87,12 @@ while (1)
     
     if (goal_cmd)
         % Check for stop signal
-        if (goal_msg.stop)
+        if (goal_msg.mode == "stop")
             robot.mode = RobotMode.STOP;
-        else
-            robot.T_goal = SE3(transl([goal_msg.x, goal_msg.y, goal_msg.z])*trotz(goal_msg.yaw,'deg'));
+        elseif (goal_msg.mode == "go")
+            robot.T_goal = SE3(transl([goal_msg.x, goal_msg.y, goal_msg.z])*trotz(deg2rad(goal_msg.yaw)));
             robot.mode = RobotMode.PLAN;
+            tic
         end
     end
     
@@ -87,6 +106,11 @@ while (1)
         
         if (use_cartesian_traj)
             %% Using cartesian trajectory
+            current = robot.T_world*robot.T_current;
+            goal = robot.T_world*robot.T_goal;
+            p = findpath(prm, current.t(1:2)',goal.t(1:2)');
+            figure(2)
+            show(prm)
             robot.T_traj = ctraj(robot.T_current, robot.T_goal, N_steps);
             mask = [1;1;1;0;0;0];
             robot.q_traj = cyton.ikine(robot.T_traj,'q0',robot.q_current,'pinv', 'mask', mask);
@@ -100,6 +124,7 @@ while (1)
             warning('Failed to converge')
             robot.mode = RobotMode.IDLE;
         else
+            disp('Planning succeeded!');
             robot.mode = RobotMode.MOVE;
             robot.t_current = 1;
             robot.update(robot.q_current);

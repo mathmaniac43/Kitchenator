@@ -1,0 +1,18 @@
+tcp_ip = '127.0.0.1';
+tcp_port = 51123;
+tcp_socket = tcpclient(tcp_ip, tcp_port, 'timeout', 10);
+
+while(1)
+    
+    data = 'hello world';
+    bytes = unicode2native(data,'UTF-8');
+   write(tcp_socket, bytes)
+if (tcp_socket.BytesAvailable)
+    bytes = read(tcp_socket);
+    disp(bytes)
+    %goal_msg = jsondecode(bytes);
+else
+    %disp('Nothing received');
+end
+wait(3)
+end
