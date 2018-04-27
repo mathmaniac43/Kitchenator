@@ -10,7 +10,7 @@ def init():
     armGoalState = 'standby' # out of 'standby', 'go', 'pause'
     global armGoalPose 
     armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
-
+    global armDatasize
 
     '''
     Vision-related states

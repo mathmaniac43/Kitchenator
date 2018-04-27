@@ -121,9 +121,9 @@ while(1)
         
         % Write data to tcp socket
 %         bytes1 = unicode2native(currentGesture, 'UTF-8');
-        bytes1 = typecast(currGest, 'uint8');
-        jMsg = jsonencode(struct('gesture',currentGesture));
-        bytes1 = unicode2native(jMsg, 'UTF-8');
+        currGest = int8(currentGesture);
+        bytes1 = typecast(currGest, 'uint8')
+        jsonencode({'gesture',gesture})
         write(tcp_socket, bytes1);
     else
         %disp('Nothing received');
