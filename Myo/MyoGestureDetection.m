@@ -171,7 +171,7 @@ emgData2(1:Intent,25)=emgData2(Intent,25);
 
 value = sum(emgData2(:,25))/1000
 
-if value > 200
+if value > 53
     %gesture is GO
     gesture = 1
 elseif value > 30
