@@ -16,26 +16,26 @@ runState = True
 delayTime = 1.0
 while runState:
     print('getting state....')
-    try:
-        c.request('GET', '/getState')
-    except Exception, e:
-        print('failed get')
+    # try:
+    c.request('GET', '/getState')
     doc = c.getresponse().read()
-    if doc == "KSTATE.standby":
+    d = json.loads(doc)
+    print(doc)
+    if d['state'] == "standby":
         print('Standby state, changing to seek')
         data = {}
         data['nuState'] = 'seek'
         json_data = json.dumps(data)
         c.request('POST', '/setState', json_data)
-        # doc = c.getresponse().read()
-    elif doc == "KSTATE.seek":
+        doc = c.getresponse().read()
+    elif d['state'] == "seek":
         print('Seek state, changing to \'standby\'')
 
         data = {}
         data['nuState'] = 'standby'
         json_data = json.dumps(data)
         c.request('POST', '/setState', json_data)
-        # doc = c.getresponse().read()
+        doc = c.getresponse().read()
 
     time.sleep(delayTime - ((time.time() - starttime) % delayTime))
         

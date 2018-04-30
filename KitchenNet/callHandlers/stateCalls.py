@@ -8,20 +8,29 @@ from . import states
 '''
 
 # Function for translating state json to KSTATE
-def translateState(x):
+def string2State(x):
     return {
         'standby': states.KSTATE.standby,
         'seek': states.KSTATE.seek,
+    }[x]
+
+def state2String(x):
+    return {
+        states.KSTATE.standby : 'standby',
+        states.KSTATE.seek : 'seek',
     }[x]
 
 @post('/setState')
 def setMode():
     req_obj = json.loads(request.body.read())
     # print(req_obj)
-    states.kitchenatorState = translateState(req_obj["nuState"])
+    states.kitchenatorState = string2State(req_obj["nuState"])
     print('New State set to {}'.format(states.kitchenatorState))
     return 'mode set to {}!'.format(states.kitchenatorState)
 
 @get('/getState')
 def getMode():
-    return '{}'.format(states.kitchenatorState)
+    data = {}
+    data['state'] = state2String(states.kitchenatorState)
+    jData = json.dumps(data)
+    return jData
