@@ -10,6 +10,5 @@ from . import states
 def setGoalIngredient():
     req_obj = json.loads(request.body.read())
     states.goalIngredient = req_obj["goalIngredient"]
-    states.kitchenatorState = "active"
     print("K I T C H E N A T O R activate!")
     return 'goal ingredient set to {}!'.format(states.goalIngredient)

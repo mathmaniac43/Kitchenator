@@ -22,12 +22,15 @@ while runState:
     d = json.loads(doc)
     print(doc)
     if d['state'] == "standby":
-        print('Standby state, changing to seek')
-        data = {}
-        data['nuState'] = 'seek'
-        json_data = json.dumps(data)
-        c.request('POST', '/setState', json_data)
-        doc = c.getresponse().read()
+        if d['goalIngredient'] != 'none':
+            print('Standby state, changing to seek for new ingredient...')
+            data = {}
+            data['nuState'] = 'seek'
+            json_data = json.dumps(data)
+            c.request('POST', '/setState', json_data)
+            doc = c.getresponse().read()
+        else:
+            print('Standby state, no goal ingredient')
     elif d['state'] == "seek":
         print('Seek state, changing to \'standby\'')
 

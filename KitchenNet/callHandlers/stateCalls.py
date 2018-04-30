@@ -32,5 +32,6 @@ def setMode():
 def getMode():
     data = {}
     data['state'] = state2String(states.kitchenatorState)
+    data['goalIngredient'] = states.goalIngredient
     jData = json.dumps(data)
     return jData
