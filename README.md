@@ -49,8 +49,10 @@ In one terminal, run:
 
 In another terminal, run:
 > python theClients/deepStateClient.py
+
 This script will check the state every 250 ms, and update from standby to seek if the goal ingredient is not 'none'
 
 In another terminal, run:
 > python theClients/voiceClient.py
+
 This script will set the goal ingredient to 'nutmeg' or 'ketamine' when you press any key. Pygame is a little glitchy, so it stops taking key inputs when you click outside of the terminal in which voiceClient.py is running.
