@@ -1,8 +1,6 @@
 import json
-# from callHandlers import gestureCalls, stateCalls, visionCalls, armCalls, uiCalls, voiceCalls
-import socket
-import sys
-import time
+from bottle import run, post, request, response
+from callHandlers import gestureCalls, stateCalls, visionCalls, armCalls, uiCalls, voiceCalls
 
 from callHandlers import states # states.py maintains all Kitchenator states
 
@@ -10,31 +8,5 @@ states.init()
 
 colorOfInterest = 'none'
 
-sV = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-vSocket = 8001
-sV_address = ('127.0.0.1', vSocket)
-#s2_address = ('localhost', 8001)
-sV.bind(sV_address)
-#s2.bind(s2_address)
-sV.listen(1)
-cV, cV_address = sV.accept()
-print(cV.recv(4096))
+run(host='127.0.0.1', port=8080, debug=True)
 
-while True:
-    
-    '''
-    Check Vision Client first
-    '''
-    
-    print 'trying Vision on %d' % vSocket
-    try:
-        cV.sendall('k')
-        s = cV.recv(4096)
-        print(s)
-        
-    finally:
-        print 'oops'
-
-
-cV.close()

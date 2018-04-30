@@ -5,6 +5,9 @@ def init():
     global kitchenatorState
     kitchenatorState = "standby" # active, standby
 
+
+
+
     ''' Arm State '''
     global armGoalState
     armGoalState = 'standby' # out of 'standby', 'go', 'pause'

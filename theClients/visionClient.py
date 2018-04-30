@@ -3,7 +3,7 @@ import time
 import json
 
 starttime = time.time()
-c = httplib.HTTPConnection('127.0.0.1', 8000)
+c = httplib.HTTPConnection('127.0.0.1', 8080)
 
 gestRun = True
 queryPeriod = 1
