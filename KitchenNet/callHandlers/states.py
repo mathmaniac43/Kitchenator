@@ -1,9 +1,12 @@
+from enum import Enum
+KSTATE = Enum('KSTATE', 'standby seek deliver return')
+
 
 def init():
 
     ''' Kitchenator State '''
     global kitchenatorState
-    kitchenatorState = "standby" # active, standby
+    kitchenatorState = KSTATE.standby
 
 
 

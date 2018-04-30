@@ -1,20 +1,27 @@
-from bottle import post, request
+from bottle import post, request, get
 import json 
 
-''' Kitchenator State '''
-mode = 'standby'
+from . import states
 
 '''
     All state related calls, updating the 'gesture' state in bottleService.py
 '''
-@post('/setMode')
+
+# Function for translating state json to KSTATE
+def translateState(x):
+    return {
+        'standby': states.KSTATE.standby,
+        'seek': states.KSTATE.seek,
+    }[x]
+
+@post('/setState')
 def setMode():
     req_obj = json.loads(request.body.read())
     # print(req_obj)
-    global mode
-    mode = req_obj["mode"]
-    return 'mode set to {}!'.format(mode)
+    states.kitchenatorState = translateState(req_obj["nuState"])
+    print('New State set to {}'.format(states.kitchenatorState))
+    return 'mode set to {}!'.format(states.kitchenatorState)
 
-@post('/getMode')
+@get('/getState')
 def getMode():
-    return 'mode is {}!'.format(mode)
+    return '{}'.format(states.kitchenatorState)
