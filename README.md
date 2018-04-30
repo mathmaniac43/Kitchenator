@@ -7,9 +7,9 @@ All software tested on MacOS Sierra Version 10.12.6
 ## Overview
 The state is recorded and available on a server launched by `kitchennet.py`
 The clients hook into this server and either update or check on the state by calling different HTTP methods
-KitchenNet is (at least for now) the state manager
+KitchenNet proceeds through a number of different states during an ingredient cycle. The states are set by a State Manager Client.
 
-Information is passed between clients by updates to the state managed by KitchenNet.
+Information is passed between clients by updates to the states held by KitchenNet.
 All data is passed as JSON
 
 ### Gesture Client:
@@ -27,6 +27,7 @@ The arm client's GET request returns JSON of the form:
 Checks KitchenNet for a desired target, if so updates the target arm pose
 
 ### Voice Command Client:
+For now, this client will set the goal ingredient at random from the available ingredients based on a keypress.
 COMIN REAL SOON
 https://github.com/mozilla/DeepSpeech#using-the-python-package
 
@@ -38,6 +39,7 @@ Future will include
 * bottle
 * httplib (Python3 requires a switch to http.client)
 * json
+* pygame (for keyboard input to the voiceClient)
 
 
 ## Operation
@@ -46,9 +48,9 @@ In one terminal, run:
 > python KitchenNet/kitchennet.py
 
 In another terminal, run:
-> python theClients/gestureClient.py
-This script will update the gesture every second
+> python theClients/deepStateClient.py
+This script will check the state every 250 ms, and update from standby to seek if the goal ingredient is not 'none'
 
 In another terminal, run:
-> python theClients/testClient.py
-This script will keep querying the current gesture and print out the result
+> python theClients/voiceClient.py
+This script will set the goal ingredient to 'nutmeg' or 'ketamine' when you press any key. Pygame is a little glitchy, so it stops taking key inputs when you click outside of the terminal in which voiceClient.py is running.
