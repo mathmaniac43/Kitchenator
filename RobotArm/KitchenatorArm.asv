@@ -3,8 +3,8 @@ classdef KitchenatorArm < handle
     %   Detailed explanation goes here
     
     properties
-        open_gripper = .007; % in m
-        closed_gripper = .0033; % in m
+        open_gripper = .013; % in m
+        closed_gripper = .005; % in m
         udp
         sim_robot
         mode
@@ -35,7 +35,7 @@ classdef KitchenatorArm < handle
             %   [in] gripper_pos : gripper position in meters
             desiredAngles = [joints gripper_pos];
             obj.udp.putData(typecast(desiredAngles,'uint8'));
-            obj.update(joints);
+            obj.update(joiin
         end
         
         function sim(obj,joints)

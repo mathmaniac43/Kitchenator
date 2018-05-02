@@ -52,7 +52,7 @@ cyton_joint_map = containers.Map(cyton_positions, cyton_joint_positions);
 
 cyton_pose_mat = cell2mat(cyton_ee_positions)';
 
-visualize_poses = 1;
+visualize_poses = 0;
 if (visualize_poses)
     figure; hold on;
     cmap = colormap(lines);

@@ -44,7 +44,7 @@ cyton.base = transl(0.0, 0.0, 0.0)*rpy2tr(0, 0, 0, 'xyz');
 %   qn         arm is at a nominal non-singular configuration
 %
 qz = [0 0 0 0 0 0 0]; % zero angles, arm up (given joint offsets)
-qr = [pi/2 pi/4 0 pi/4 0 0 0]; % ready pose, arm slightly bent
+qr = [0 pi/4 0 pi/4 0 0 0]; % ready pose, arm slightly bent
 qstretch = [pi/2 pi/2  0 0 0 0 0];
 qn = qr;
 
