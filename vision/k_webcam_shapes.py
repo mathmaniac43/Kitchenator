@@ -28,6 +28,8 @@ BLACK_ORANGE_SPACING_RATIO = 1.2
 BLACK_BLUE_SPACING_RATIO = 1.1
 BLACK_PURPLE_SPACING_RATIO = 1.1
 
+ENABLE_COMMS = False
+
 # Variables
 origin_x = -1
 origin_y = -1
@@ -58,11 +60,12 @@ squares = []
 
 setup_gui()
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', 8000)
-sock.connect(server_address)
-sock.settimeout(0.05)
-sock.sendall('woke up')
+if ENABLE_COMMS:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = ('localhost', 8000)
+    sock.connect(server_address)
+    sock.settimeout(0.05)
+    sock.sendall('woke up')
 
 while True:
     # Stop acquiring and processing when the 'Q' key is pressed.
@@ -276,18 +279,19 @@ while True:
         )
         cv2.putText(edited_image, purple_json, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
     
-    # Handle json
-    try:
-        data = sock.recv(1)
-        
-        print('data: "%s"' % data)
-        if data != "":
-            full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
-            sock.sendall(full_json)
-    except socket.timeout:
-        print 'timeout'
-    except:
-        print 'wtf'
+    if ENABLE_COMMS:
+        # Handle json
+        try:
+            data = sock.recv(1)
+            
+            print('data: "%s"' % data)
+            if data != "":
+                full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
+                sock.sendall(full_json)
+        except socket.timeout:
+            print 'timeout'
+        except:
+            print 'wtf'
     
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
@@ -334,6 +338,7 @@ while True:
     cv2.imshow(IMAGE_WINDOW_NAME, edited_image)
     cv2.namedWindow(CONTROL_WINDOW_NAME)
 
-sock.close()
+if ENABLE_COMMS:
+    sock.close()
 
 close_gui()
