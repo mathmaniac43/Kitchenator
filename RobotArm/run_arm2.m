@@ -69,9 +69,7 @@ while (1)
         
         % Send current state information
         if (mod(send_state_count, send_state_threshold) == 0)
-            keys = {'state'};
-            value = robot.mode;
-            state_msg = jsonencode(table(keys,values));
+            state_msg = jsonencode(struct('state',robot.mode));
             response = webwrite(url, state_msg, options);
         end
         
