@@ -2,6 +2,7 @@ from enum import Enum
 KSTATE = Enum('standby', 'seek', 'deliver', 'return')
 
 
+
 def init():
 
     ''' Kitchenator State '''
@@ -10,7 +11,7 @@ def init():
 
     ''' Arm State '''
     global armGoalState
-    armGoalState = 'standby' # out of 'standby', 'go', 'pause'
+    armGoalState = 'stop' # out of 'stop', 'go'
     global armGoalPose 
     armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
 
