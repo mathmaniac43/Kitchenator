@@ -4,6 +4,9 @@ currentAngles = zeros(1,8);
 q = [0 -0.7 0 0.7 0 -0.7 0];
 desiredAngles = [q, 0.01];
 
+while (1)
 udp.putData(typecast(desiredAngles,'uint8'))
 bytes = udp.getData();
-angles = typecast(bytes,'double');
+bytes
+% angles = typecast(bytes,'double');
+end
