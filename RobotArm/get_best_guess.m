@@ -9,6 +9,7 @@ function [q, ck, T] = get_best_guess(xyz_query, draw_plot)
         q = zeros(1,cyton.n);
         return
     end
+    xyz_query = reshape(xyz_query,1,3);
     
     % Nearest Neighbor Search
     idx = knnsearch(cyton_pose_mat, xyz_query);

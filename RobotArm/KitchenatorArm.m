@@ -14,9 +14,11 @@ classdef KitchenatorArm < handle
         q_traj
         T_current
         q_current
-        t_current
+        t_step
+        q_measured = [];
         q_next
-        T_world = SE3(transl(0,.5,0));
+        mask = [1 1 1 0 0 0];
+        q_tol = 0.2;            % joint angle tolerance
     end
     
     methods
@@ -26,7 +28,7 @@ classdef KitchenatorArm < handle
             %   [in] sim_robot : robotics toolbox cytonE1500 model
             obj.udp = udp;
             obj.sim_robot = sim_robot;
-            obj.mode = RobotMode.IDLE;
+            obj.mode = 'idle';
         end
         
         function move(obj,joints,gripper_pos)
@@ -34,8 +36,10 @@ classdef KitchenatorArm < handle
             %   [in] joints : joint angles in radians
             %   [in] gripper_pos : gripper position in meters
             desiredAngles = [joints gripper_pos];
-            obj.udp.putData(typecast(desiredAngles,'uint8'));
-            obj.update(joints);
+            if (~isempty(obj.udp))
+                obj.udp.putData(typecast(desiredAngles,'uint8'));
+                obj.update(joints);
+            end
         end
         
         function sim(obj,joints)
@@ -50,16 +54,47 @@ classdef KitchenatorArm < handle
             % Do nothing for now...
         end
         
-        function done = update(obj, joints)
-            disp(joints)
-            obj.q_current = joints;
-            obj.T_current = obj.sim_robot.fkine(obj.q_current);
-            obj.t_current = obj.t_current+1;
-            if (obj.t_current > size(obj.q_traj,1))
-                done = 1;
+        function [done, qdiff] = update(obj, joints)
+            
+            if(exist('joints','var'))
+                obj.q_current = joints;
+            end
+            
+            [reached, qdiff] = obj.measure();
+            
+            % Only update next point when robot is at last sent
+            if (reached)
+                obj.t_step = obj.t_step+1;
+                obj.q_current = obj.q_next;
+            end
+            
+            if (obj.t_step > size(obj.q_traj,1))
+               done = 1;
             else
-                obj.q_next = obj.q_traj(obj.t_current,:);
-                done = 0;
+               obj.q_next = obj.q_traj(obj.t_step,:);
+               done = 0;
+            end
+            obj.T_current = obj.sim_robot.fkine(obj.q_current);
+        end
+        
+        function [reached, qdiff] = measure(obj)
+            if (~isempty(obj.udp))
+                % Read robot joint angles
+                bytes = obj.udp.getData();
+                if (~isempty(bytes))
+                    obj.q_measured = typecast(bytes,'double');
+                end
+            else
+                % Simulate perfect robot
+                obj.q_measured = obj.q_next;
+            end
+            
+            if (isempty(obj.q_measured))
+                qdiff = [];
+                reached = 0;
+            else
+                qdiff = obj.q_next - obj.q_measured;
+                reached = norm(qdiff) < obj.q_tol;
             end
         end
     end

@@ -1,5 +1,8 @@
 mdl_cyton
 
+%% MISC
+ready_pose = rad2deg([0 -.7 0 -.7 0 -.7 0]);
+
 %%
 % FOR LEFT INGREDIENT (according to robot's perspective)
 
