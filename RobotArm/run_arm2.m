@@ -15,9 +15,9 @@ N_steps = 30;           % number of steps in trajectory
 use_connection = 1;     % set to 1 to connect to kitchenNET server
 use_robot = 1;          % set to 1 to connect to Cyton viewer
 
-use_simple = 0;         % find ik of single goal point and send to cyton
+use_simple = 1;         % find ik of single goal point and send to cyton
 use_joint_traj = 0;     % compute joint space trajectory
-use_cartesian_traj = 1; % compute cartesian trajectory
+use_cartesian_traj = 0; % compute cartesian trajectory
 
 %% Configuration
 send_state_threshold = 20;
@@ -107,12 +107,12 @@ while (1)
     % Handle new messages
     if (goal_cmd)
         % Check for stop signal
-        if strcmp(goal_msg.armGoalState,'pause')
+        if strcmp(goal_msg.armGoalState,'stop')
             robot.mode = 'stop';
         elseif strcmp(goal_msg.armGoalState,'go')
             pose = goal_msg.armGoalPose;
-            robot.T_goal = SE3(trotz(deg2rad(double(pose.yaw)))*transl(double(pose.x), double(pose.y), double(pose.z)));
-            robot.mask = [1 1 1 0 0 0]; %goal_msg.mask;
+            robot.T_goal = SE3(trotz(double(pose.yaw))*transl(double(pose.x), double(pose.y), double(pose.z)));
+            robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
             robot.mode = 'plan';
             tic
         end

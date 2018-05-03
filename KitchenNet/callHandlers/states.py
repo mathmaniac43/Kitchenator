@@ -1,5 +1,6 @@
 from enum import Enum
-KSTATE = Enum('KSTATE', 'standby grab deliver return')
+KSTATE = Enum('standby', 'seek', 'deliver', 'return')
+
 
 
 def init():
