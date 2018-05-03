@@ -60,7 +60,7 @@ setup_gui()
 
 if ENABLE_COMMS:
     print "Enabling comms"
-    client = httplib.HTTPConnection('127.0.0.1', 8080)
+    client = httplib.HTTPConnection('127.0.0.1', 12345)
 
 while True:
     # Stop acquiring and processing when the 'Q' key is pressed.
@@ -282,6 +282,8 @@ while True:
         full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
         print ('Sending %s' % full_json)
         client.request('POST', '/setColorPoses', full_json)
+        doc = client.getresponse().read()
+        time.sleep(1)
     
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:

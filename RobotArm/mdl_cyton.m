@@ -35,6 +35,14 @@ links = [
 
 cyton = SerialLink(links, 'name', 'Cyton Epsilon 1500', 'manufacturer', 'Cyton');
 
+links(1).qlim = [-2.61799 2.61799];
+links(2).qlim = [-1.91986 1.91986];
+links(3).qlim = [-1.91986 1.91986];
+links(4).qlim = [-1.91986 1.91986];
+links(5).qlim = [-1.91986 1.91986];
+links(6).qlim = [-2.00713 2.00713];
+links(7).qlim = [-2.96706 2.96706];
+
 cyton.base = transl(0.0, 0.0, 0.0)*rpy2tr(0, 0, 0, 'xyz');
 
 % define the workspace vectors:
@@ -44,7 +52,7 @@ cyton.base = transl(0.0, 0.0, 0.0)*rpy2tr(0, 0, 0, 'xyz');
 %   qn         arm is at a nominal non-singular configuration
 %
 qz = [0 0 0 0 0 0 0]; % zero angles, arm up (given joint offsets)
-qr = [pi/2 pi/4 0 pi/4 0 0 0]; % ready pose, arm slightly bent
+qr = [0 pi/4 0 pi/4 0 0 0]; % ready pose, arm slightly bent
 qstretch = [pi/2 pi/2  0 0 0 0 0];
 qn = qr;
 

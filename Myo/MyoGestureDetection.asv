@@ -112,9 +112,9 @@ while(1)
         %no valid gesture
         gesture = 0
     end
-    
-    response = webwrite(url, num2str(gesture), options);
-    
+    try
+        response = webwrite(url, num2str(gesture), options);
+    catch
         
     pause(0.1)
 

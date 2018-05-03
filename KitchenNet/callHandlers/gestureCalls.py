@@ -9,7 +9,8 @@ from . import states
 @post('/setGestureState')
 def setGestureState():
     req_obj = json.loads(request.body.read())
-    states.gesture = req_obj["gesture"]
+    print(req_obj)
+    states.gesture = req_obj#["gesture"]
     return 'gesture set to {}!'.format(states.gesture)
 
 @post('/getGestureState')
