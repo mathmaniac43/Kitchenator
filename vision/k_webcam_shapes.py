@@ -5,8 +5,7 @@ import json
 import math
 import time
 
-import socket
-import sys
+import httplib
 
 from k_vision_helpers import *
 
@@ -15,19 +14,20 @@ DISTANCE_UNITS = "cm"
 BLACK_GREEN_DISTANCE = 8.8
 DISTANCE_TO_M = 0.01
 
-ORIGIN_OFFSET_R_DIST = -13
-ORIGIN_OFFSET_D_DIST =  0
+ORIGIN_OFFSET_R_DIST = -13.0 # cm
+ORIGIN_OFFSET_D_DIST = -08.5 # cm
 
-MAX_SQUARE_AGE = 5 # loop iterations
+MAX_SQUARE_AGE = 30 # loop iterations
 
-PAIR_TOL = 0.3
-PAIR_ANGLE_TOL_DEG = 20
+PAIR_TOL = 0.2
+PAIR_ANGLE_TOL_DEG = 15
 
-BLACK_GREEN_SPACING_RATIO = 1.2 # MAKE SURE IT IS A FLOATING POINT RATIO
-BLACK_ORANGE_SPACING_RATIO = 1.2
+BLACK_GREEN_SPACING_RATIO = 1.1 # MAKE SURE IT IS A FLOATING POINT RATIO
+BLACK_ORANGE_SPACING_RATIO = 1.1
 BLACK_BLUE_SPACING_RATIO = 1.1
 BLACK_PURPLE_SPACING_RATIO = 1.1
 
+ENABLE_COMMS = True
 # Variables
 origin_x = -1
 origin_y = -1
@@ -40,17 +40,17 @@ green_rot = 0
 orange_x = -1
 orange_y = -1
 orange_rot = 0
-orange_json = '"orange" : null'
+orange_json = None
 
 blue_x = -1
 blue_y = -1
 blue_rot = 0
-blue_json = '"blue" : null'
+blue_json = None
 
 purple_x = -1
 purple_y = -1
 purple_rot = 0
-purple_json = '"purple" : null'
+purple_json = None
 
 pixels_per_unit_length = -1
 
@@ -58,11 +58,9 @@ squares = []
 
 setup_gui()
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', 8000)
-sock.connect(server_address)
-sock.settimeout(0.05)
-sock.sendall('woke up')
+if ENABLE_COMMS:
+    print "Enabling comms"
+    client = httplib.HTTPConnection('127.0.0.1', 8080)
 
 while True:
     # Stop acquiring and processing when the 'Q' key is pressed.
@@ -87,7 +85,11 @@ while True:
     
     # Detect all contours in the image.
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    edged = cv2.Canny(gray, canny_min, canny_max, 1)
+    
+    cv2.namedWindow("gray")
+    cv2.imshow("gray", gray)
+    
+    edged = cv2.Canny(gray, canny_min, canny_max, 4)
     (contours, _) = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key = cv2.contourArea, reverse = False)
     
@@ -107,7 +109,7 @@ while True:
         approx = cv2.approxPolyDP(c, 0.01 * IMAGE_WIDTH, True)
         rect = cv2.minAreaRect(approx)
         
-        if (not is_square(approx, rect, 0.1)):
+        if (not is_square(approx, rect, 0.15)):
             continue
         
         # Surround detected squares in white.
@@ -276,18 +278,10 @@ while True:
         )
         cv2.putText(edited_image, purple_json, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
     
-    # Handle json
-    try:
-        data = sock.recv(1)
-        
-        print('data: "%s"' % data)
-        if data != "":
-            full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
-            sock.sendall(full_json)
-    except socket.timeout:
-        print 'timeout'
-    except:
-        print 'wtf'
+    if ENABLE_COMMS and orange_json != None and blue_json != None and purple_json != None:
+        full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
+        print ('Sending %s' % full_json)
+        client.request('POST', '/setColorPoses', full_json)
     
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
@@ -333,7 +327,5 @@ while True:
     
     cv2.imshow(IMAGE_WINDOW_NAME, edited_image)
     cv2.namedWindow(CONTROL_WINDOW_NAME)
-
-sock.close()
 
 close_gui()

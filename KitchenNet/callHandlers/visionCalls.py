@@ -13,4 +13,8 @@ def getGoalColor():
     json_data = json.dumps(data)
     return json_data
 
+@post('/setColorPoses')
+def setColorPoses():
+    print('setting color poses')
+
 # TODO: ('setGoalArmPosition')
