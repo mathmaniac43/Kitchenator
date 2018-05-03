@@ -22,21 +22,29 @@ if HOME:
         "orange":(255, 150,  50),
         "green": (180, 255, 110),
         "blue":  ( 30, 200, 255),
-        "purple":(120,  90, 220)
+        "purple":(120,  90, 220),
+        "white": (255, 255, 255)
     }
-else:
+    
+    DEFAULT_CAMERA = 0
+    
+else: # LAB
+
     IMAGE_WIDTH =  1920/2
     IMAGE_HEIGHT = 1080/2
     
     FLIP_VALUE = 1
     
     COLORS = {
-        "black": ( 90, 120, 130),
+        "black": ( 50,  50,  50),
         "orange":(255, 150,  50),
         "green": (180, 255, 110),
         "blue":  ( 15, 115, 190),
-        "purple":(120,  90, 220)
+        "purple":(120,  90, 220),
+        "white": (255, 255, 255)
     }
+    
+    DEFAULT_CAMERA = 0
 
 IMAGE_WINDOW_NAME = "Image"
 CONTROL_WINDOW_NAME = "Controls"
@@ -98,7 +106,7 @@ def is_square(points, rect, tol):
         d_diag_b = math.sqrt((points[1][0][0] - points[3][0][0]) ** 2 +
                              (points[1][0][1] - points[3][0][1]) ** 2)
         
-        return (m * tol > abs(w - h) and (m * tol) > (d_diag_a - d_diag_b))
+        return (m * tol > abs(w - h) and (m * tol) > abs(d_diag_a - d_diag_b))
     
     return False
 
@@ -210,8 +218,12 @@ def to_position_json(c, right, down, rot, origin_rot):
     # along the robot's +Y axis and down along the robot's +X axis
     # (Tag to right, green stretched left)
     
-    x = down
-    y = right
+    x = -right
+    y = down
+    
+    z = 0
+    if c == "purple" or c == "blue":
+        z = 0.09 # 9 cm
     
     # zero in line with origin's right axis, clockwise
     zero_rel_rot = rot - origin_rot
@@ -220,9 +232,9 @@ def to_position_json(c, right, down, rot, origin_rot):
     neg_zero_rel_rot = -zero_rel_rot
     
     # zero in line with robot's +X axis, counterclockwise
-    x_rot = numpy.rad2deg(neg_zero_rel_rot + math.pi/2)
+    x_rot = neg_zero_rel_rot + math.pi/2
     
-    return '"%s" : { "x" : %f, "y" : %f, "rot" : %f }' % (c, x, y, x_rot)
+    return '"%s" : { "x" : %f, "y" : %f, "z" : %f, "yaw" : %f }' % (c, x, y, z, x_rot)
     
     
 def setup_gui():
@@ -240,7 +252,7 @@ def setup_gui():
     cv2.setMouseCallback(IMAGE_WINDOW_NAME, mouse_callback)
 
 
-    camera_selector_callback(cv2.getTrackbarPos(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME)) # default to the first camera value
+    camera_selector_callback(DEFAULT_CAMERA) # default to the first camera value
     time.sleep(2)
 
 def close_gui():
