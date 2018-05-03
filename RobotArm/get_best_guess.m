@@ -1,4 +1,4 @@
-function [q, ck] = get_best_guess(xyz_query, draw_plot)
+function [q, ck, T] = get_best_guess(xyz_query, draw_plot)
     cyton_poses
     
     if ~exist('draw_plot','var')
@@ -14,6 +14,8 @@ function [q, ck] = get_best_guess(xyz_query, draw_plot)
     idx = knnsearch(cyton_pose_mat, xyz_query);
     ck = cyton_positions{idx};
     qcell = values(cyton_joint_map,{ck});
+    Tcell = values(cyton_T_map, {ck});
+    T = Tcell{1};
     q = qcell{1};
     if (draw_plot)
         figure; hold on;

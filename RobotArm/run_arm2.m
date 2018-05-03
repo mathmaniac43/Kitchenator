@@ -6,30 +6,22 @@
 
 clc; clear all; close all;
 
-import matlab.net.*
-import matlab.net.http.*
-
 %% Options
 N_steps = 30;
-use_connection = 0;
-use_robot = 0;
+use_connection = 1;
+use_robot = 1;
 use_joint_traj = 1;
 use_cartesian_traj = 0;
 
 %% Configuration
 send_state_threshold = 20;
 send_state_count = 1;
-tcp_ip = 'localhost';
-tcp_port = 5000;
+url = 'http://127.0.0.1:8080/getArmGoals';
+options = weboptions('RequestMethod', 'get'); % could also be 'post'
 %%
-if (use_connection)
-    tcp_socket = tcpclient(tcp_ip, tcp_port);
-    fopen(tcp_socket);
-else
-    fid = fopen('test_points.txt');
-end
+
 if (use_robot)
-    Goto MiniVIE equivalent
+%     Goto MiniVIE equivalent
     my_dir = pwd;
     cd('C:\git\minivie') 
     MiniVIE.configurePath();
@@ -40,9 +32,9 @@ end
 mdl_cyton
 
 % Initialize the MATLAB UDP object
-% udp_connection = PnetClass(8889, 8888, '127.0.0.1');
-% udp_connection.initialize();
-udp_connection = '';
+udp_connection = PnetClass(8889, 8888, '127.0.0.1');
+udp_connection.initialize();
+% udp_connection = '';
 
 % Initialize occupancy grid
 base_radius = 0.15;
@@ -84,12 +76,9 @@ while (1)
     goal_cmd = 0;
     % Check for new goalpoints
     if (use_connection)
-        if (tcp_socket.BytesAvailable)
-            bytes = read(tcp_socket);
-            string = native2unicode(bytes);
-            goal_msg = jsondecode(string);
-        end
-        status = resp.StatusCode
+        data = webread(url, options); % Get dat string
+        goal_msg = jsondecode(data);
+        goal_cmd = length(goal_msg);
     elseif strcmp(robot.mode,'idle')
         goal_raw = fgetl(fid);
         if (goal_raw ~= -1)
@@ -123,9 +112,11 @@ while (1)
         
         if (use_cartesian_traj)
             %% Using cartesian trajectory
-            guess = deg2rad([-4.1459, -37.64229, -106.2836, -58.348412, -50.386816, 74.048011, 80.18664]);
-            robot.T_traj = ctraj(robot.T_current, robot.T_goal, N_steps);
-            robot.q_traj = cyton.ikine(robot.T_traj,'q0',guess,'pinv', 'mask', robot.mask);
+%             guess = deg2rad([-4.1459, -37.64229, -106.2836, -58.348412, -50.386816, 74.048011, 80.18664]);
+            [q0,n,T0] = get_best_guess(robot.T_goal.t);
+%             robot.T_traj = ctraj(robot.T_current, robot.T_goal, N_steps);
+%             robot.q_traj = cyton.ikine(robot.T_traj,'q0',q0,'pinv', 'mask', robot.mask);
+            robot.q_traj = cyton.ikine(robot.T_goal, 'q0', q0, 'mask', [1 1 1 1 1 1]);
         elseif (use_joint_traj)
             %% Using joint trajectory
             guess = deg2rad([-4.1459, -37.64229, -106.2836, -58.348412, -50.386816, 74.048011, 80.18664]);
