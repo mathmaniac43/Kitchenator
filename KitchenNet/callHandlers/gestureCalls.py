@@ -1,4 +1,4 @@
-from bottle import post, request
+from bottle import post, get, request
 import json 
 
 from . import states
@@ -13,6 +13,9 @@ def setGestureState():
     states.gesture = req_obj#["gesture"]
     return 'gesture set to {}!'.format(states.gesture)
 
-@post('/getGestureState')
+@get('/getGestureState')
 def getGestureState():
-    return 'gesture is {}!'.format(states.gesture)
+    data = {}
+    data['gesture'] = states.gesture
+    jData = json.dumps(data)
+    return jData
