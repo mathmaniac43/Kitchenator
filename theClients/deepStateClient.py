@@ -13,7 +13,7 @@ starttime = time.time()
 c = httplib.HTTPConnection('127.0.0.1', 8080)
 
 runState = True
-delayTime = 1.0
+delayTime = 0.25
 while runState:
     print('getting state....')
     # try:
