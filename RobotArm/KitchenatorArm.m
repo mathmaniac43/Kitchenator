@@ -89,11 +89,11 @@ classdef KitchenatorArm < handle
                 obj.q_measured = obj.q_next;
             end
             
-            if (isempty(obj.q_measured))
+            if (isempty(obj.q_measured))||(isempty(obj.q_next))
                 qdiff = [];
                 reached = 0;
             else
-                qdiff = obj.q_next - obj.q_measured;
+                qdiff = obj.q_next - obj.q_measured(1:7);
                 reached = norm(qdiff) < obj.q_tol;
             end
         end

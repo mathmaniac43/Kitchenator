@@ -12,8 +12,8 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 0;     % set to 1 to connect to kitchenNET server
-use_robot = 0;          % set to 1 to connect to Cyton viewer
+use_connection = 1;     % set to 1 to connect to kitchenNET server
+use_robot = 1;          % set to 1 to connect to Cyton viewer
 
 use_simple = 0;         % find ik of single goal point and send to cyton
 use_joint_traj = 0;     % compute joint space trajectory
@@ -50,8 +50,16 @@ end
 % Initialize robot arm
 robot = KitchenatorArm(udp_connection, cyton);
 robot.T_goal = SE3(transl(0,0,0));
-robot.update(qz);
-robot.move(qz, robot.open_gripper);
+if (use_robot)
+    while (isempty(robot.q_measured))
+        [reached, qdiff] = robot.measure();
+    end
+    disp('got current position')
+    robot.update(robot.q_measured(1:7));
+else
+    robot.update(qz);
+    robot.move(qz, robot.open_gripper);
+end
 
 goal_msg.x = 0.3;
 goal_msg.y = 0.3;
@@ -75,8 +83,10 @@ while (1)
         
         % Get latest goal point
         data = webread(url, options);
-        goal_msg = jsondecode(data);
-        goal_cmd = length(goal_msg);
+        if strcmp(robot.mode,'idle')
+            goal_msg = jsondecode(data);
+            goal_cmd = length(goal_msg);
+        end
     
     % Test with other points
     elseif strcmp(robot.mode,'idle')
@@ -97,11 +107,12 @@ while (1)
     % Handle new messages
     if (goal_cmd)
         % Check for stop signal
-        if strcmp(goal_msg.mode,'stop')
+        if strcmp(goal_msg.armGoalState,'pause')
             robot.mode = 'stop';
-        elseif strcmp(goal_msg.mode,'go')
-            robot.T_goal = SE3(transl([goal_msg.x, goal_msg.y, goal_msg.z])*trotz(deg2rad(goal_msg.yaw)));
-            robot.mask = goal_msg.mask;
+        elseif strcmp(goal_msg.armGoalState,'go')
+            pose = goal_msg.armGoalPose;
+            robot.T_goal = SE3(trotz(deg2rad(double(pose.yaw)))*transl(double(pose.x), double(pose.y), double(pose.z)));
+            robot.mask = [1 1 1 0 0 0]; %goal_msg.mask;
             robot.mode = 'plan';
             tic
         end
@@ -117,8 +128,8 @@ while (1)
         
         % Figure out closest known position
         [q0,n,T0] = get_best_guess(robot.T_goal.t);
-%         robot.q_goal = cyton.ikine(robot.T_goal, 'q0', q0, 'mask', [1 1 1 0 0 0]);
-        robot.q_goal = cyton.ikine(robot.T_goal, 'mask', [1 1 1 0 0 0]);
+        robot.q_goal = cyton.ikine(robot.T_goal, 'q0', q0, 'mask', robot.mask);
+%         robot.q_goal = cyton.ikine(robot.T_goal, 'mask', [1 1 1 0 0 0]);
         
         if (isempty(robot.q_goal))
             disp('IK on goal position failed');
@@ -136,7 +147,8 @@ while (1)
             robot.q_traj(N_steps,:) = robot.q_goal;
             q0 = robot.q_goal;
             for i = N_steps-1:-1:1
-                q = cyton.ikine(robot.T_traj(i),'q0',q0, 'mask', robot.mask);
+                 q = cyton.ikine(robot.T_traj(i),'q0',q0, 'mask', robot.mask);
+%                 q = cyton.ikcon(robot.T_traj(i),'q0',q0, 'mask', robot.mask);
                 if isempty(q)
                     robot.q_traj = [];
                     break;
@@ -182,7 +194,8 @@ while (1)
             disp('sim')
             % Send to Cyton
             if (use_robot)
-                confirm = input('confirm? y/n', 's');
+%                 confirm = input('confirm? y/n', 's');
+                confirm = 'y';
                 % Send to robot
                 if (confirm == 'y')
                     disp('sent joints')

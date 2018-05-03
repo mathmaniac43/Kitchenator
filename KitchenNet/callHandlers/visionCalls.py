@@ -16,5 +16,10 @@ def getGoalColor():
 @post('/setColorPoses')
 def setColorPoses():
     print('setting color poses')
+    req_obj = json.loads(request.body.read())
+    print(req_obj)
+    states.colorPoses = req_obj#["gesture"]
+    states.armGoalState = 'go'
+    states.armGoalPose = req_obj['blue']
 
 # TODO: ('setGoalArmPosition')

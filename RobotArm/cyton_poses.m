@@ -2,6 +2,7 @@ mdl_cyton
 
 %% MISC
 ready_pose = rad2deg([0 -.7 0 -.7 0 -.7 0]);
+zero_pose = [0 0 0 0 0 0 0];
 
 %%
 % FOR LEFT INGREDIENT (according to robot's perspective)
@@ -19,6 +20,8 @@ left_ready_to_pour = [57.37 -58.50 -53.06 -41.35 -23.50 34.478 -107.35];
 
 left_pouring = [57.36 -59.08 -53.04 -41.42 -23.5 34.48 -10];
 
+left_pickup_b = [16.338042 -71.510919 25.725809 -63.268527 10.273604 43.298257 94.950884];
+
 % FOR RIGHT INGREDIENT
 
 % not actually tested, just mirroring left
@@ -33,12 +36,14 @@ right_about_to_pour = [109.277, 74.576, -68.3, 21.484, -20.991, -34.559, 94.95];
 right_pouring = [109.277, 74.576, -68.3, 21.484, -20.991, -34.559 25.566];
 
 cyton_positions = {...
-    'left_intermediate2', 'left_approach', 'left_pickup','left_ready_to_pour','left_pouring',...
+    'ready_pose', 'zero_pose', ...
+    'left_intermediate2', 'left_approach', 'left_pickup','left_ready_to_pour','left_pouring','left_pickup_b',...
     'right_pickup', 'right_clear_bowl', 'right_about_to_pour', 'right_pouring'...
     };
 
 cyton_joint_positions = {...
-    left_intermediate2,left_approach,left_pickup,left_ready_to_pour,left_pouring...
+    ready_pose, zero_pose, ...
+    left_intermediate2,left_approach,left_pickup,left_ready_to_pour,left_pouring, left_pickup_b,...
     right_pickup,right_clear_bowl,right_about_to_pour,right_pouring...
     };
 cyton_ee_positions = cell(size(cyton_positions));

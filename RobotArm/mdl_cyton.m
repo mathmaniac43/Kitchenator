@@ -35,15 +35,16 @@ links = [
 
 cyton = SerialLink(links, 'name', 'Cyton Epsilon 1500', 'manufacturer', 'Cyton');
 
-links(1).qlim = [-2.61799 2.61799];
-links(2).qlim = [-1.91986 1.91986];
-links(3).qlim = [-1.91986 1.91986];
-links(4).qlim = [-1.91986 1.91986];
-links(5).qlim = [-1.91986 1.91986];
-links(6).qlim = [-2.00713 2.00713];
-links(7).qlim = [-2.96706 2.96706];
+links(1).qlim = [-2.61 2.61];
+links(2).qlim = [-1.91 1.91];
+links(3).qlim = [-1.91 1.91986];
+links(4).qlim = [-1.91 1.91];
+links(5).qlim = [-1.91 1.91];
+links(6).qlim = [-2.00 2.00];
+links(7).qlim = [-2.96 2.96];
 
 cyton.base = transl(0.0, 0.0, 0.0)*rpy2tr(0, 0, 0, 'xyz');
+cyton.tool = transl(0,0,0)*rpy2tr(-pi/2,0,0);
 
 % define the workspace vectors:
 %   qz         zero joint angle configuration
