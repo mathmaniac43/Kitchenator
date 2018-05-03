@@ -16,7 +16,7 @@ use_cartesian_traj = 0;
 %% Configuration
 send_state_threshold = 20;
 send_state_count = 1;
-url = 'http://127.0.0.1:8080/getArmGoals';
+url = 'http://127.0.0.1:12345/getArmGoals';
 options = weboptions('RequestMethod', 'get'); % could also be 'post'
 %%
 
