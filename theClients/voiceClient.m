@@ -1,6 +1,6 @@
-% For an arm client, for example
+% For the voice client
 
-url = 'http://127.0.0.1:8080/setGoalIngredient';
+url = 'http://127.0.0.1:12345/setGoalIngredient';
 options = weboptions('RequestMethod', 'post'); % could also be 'post'
 
 nutmeg=audioread('nutmeg.wav');

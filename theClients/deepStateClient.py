@@ -10,7 +10,7 @@ For further information, find the state diagram for the Kitchenator
 '''
 
 starttime = time.time()
-c = httplib.HTTPConnection('127.0.0.1', 8080)
+c = httplib.HTTPConnection('127.0.0.1', 12345)
 
 runState = True
 delayTime = 1.0
