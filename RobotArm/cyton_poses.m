@@ -49,8 +49,10 @@ cyton_joint_positions = {...
 cyton_ee_positions = cell(size(cyton_positions));
 cyton_T_positions = cell(size(cyton_positions));
 for i = 1:length(cyton_joint_positions)
-    cyton_T_positions{i} = cyton.fkine(deg2rad(cyton_joint_positions{i}));
+    cyton_joint_positions{i} = deg2rad(cyton_joint_positions{i});
+    cyton_T_positions{i} = cyton.fkine(cyton_joint_positions{i});
     cyton_ee_positions{i} = cyton_T_positions{i}.t;
+    
 end
 
 % Lookup end effector xyz position/transforms or joints by Name
