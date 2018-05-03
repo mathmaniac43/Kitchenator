@@ -8,15 +8,11 @@ def init():
     global kitchenatorState
     kitchenatorState = KSTATE.standby
 
-
-
-
     ''' Arm State '''
     global armGoalState
     armGoalState = 'standby' # out of 'standby', 'go', 'pause'
     global armGoalPose 
     armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
-
 
     '''
     Vision-related states
@@ -26,6 +22,9 @@ def init():
     
     global ingredientColorMap
     ingredientColorMap = {'nutmeg': 'blue', 'ketamine': 'orange'}
+
+    global colorPoses
+    colorPoses = { 'purple': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}, 'blue': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}, 'orange': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}}
 
     ''' Gesture State '''
     global gesture 
