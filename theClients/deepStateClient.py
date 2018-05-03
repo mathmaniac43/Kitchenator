@@ -23,7 +23,7 @@ while runState:
     c.request('GET', '/getGestureState')
     doc = c.getresponse().read()
     d = json.loads(doc)
-    if d['gesture'] == 2: # The halt gesture means 
+    if d['gesture'] == 2: # The halt gesture 
         # Setting standby state
         data['nuState'] = 'standby'
         json_data = json.dumps(data)
@@ -41,19 +41,31 @@ while runState:
 
     if currentState == "standby":
         if d['goalIngredient'] != 'none':
-            print('Standby state, changing to seek for new ingredient...')
-            data['nuState'] = 'seek'
+            print('Standby state, changing to \'grab\' for new ingredient...')
+            data['nuState'] = 'grab'
             json_data = json.dumps(data)
             c.request('POST', '/setState', json_data)
             doc = c.getresponse().read()
         else:
             print('Standby state, no goal ingredient')
-    elif currentState == "seek":
-        print('Seek state, changing to \'standby\'')
+    elif currentState == "grab":
+        data['armGoalState'] = 'go'
+        json_data = json.dumps(data)
+        c.request('POST', '/setState', json_data)
+        doc = c.getresponse().read()
+
+    elif currentState == "deliver":
+        print("Deliver state")
+
+    elif currentState == "return":
+        print("Return state")
+    else:
+        print("INVALID SYSTEM STATE, setting to standby")
         data['nuState'] = 'standby'
         json_data = json.dumps(data)
         c.request('POST', '/setState', json_data)
         doc = c.getresponse().read()
+
 
     time.sleep(delayTime - ((time.time() - starttime) % delayTime))
         
