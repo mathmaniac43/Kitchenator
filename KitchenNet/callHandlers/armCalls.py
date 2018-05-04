@@ -13,3 +13,10 @@ def getArmGoals():
     data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
     json_data = json.dumps(data)
     return json_data
+
+@post('/setCurrentArmState')
+def setCurrentArmState():
+    req_obj = json.loads(request.body.read())
+    states.currentArmState = req_obj["state"]
+    print('Current Arm State:  {}'.format(states.currentArmState))
+    
