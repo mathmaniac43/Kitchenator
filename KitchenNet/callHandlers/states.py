@@ -17,6 +17,10 @@ def init():
     ''' Arm State '''
     global armGoalState
     armGoalState = 'stop' # out of 'stop', 'go'
+    
+    global currentArmState
+    currentArmState = 'idle' # out of 'idle', 'plan', 'move'
+
     global armGoalPose 
     armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
 
