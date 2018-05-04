@@ -5,7 +5,7 @@ WORKING = False
 if WORKING:
     KSTATE = Enum('standby', 'seek', 'deliver', 'return')
 else:
-    KSTATE = Enum('standby seek deliver return')
+    KSTATE = Enum('KSTATE', 'standby seek deliver return')
 
 
 def init():
