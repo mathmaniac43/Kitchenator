@@ -1,0 +1,4 @@
+{"gripperState" : "close", "armGoalState" : "go", "armGoalPose": { "x" : -0.24, "y" : 0.5, "z" : 0.090000, "yaw" : 1.794273 }}
+{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : 0.224889, "y" : 0.469333, "z" : 0.090000, "yaw" : -0.881872 }}
+{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : -0.267259, "y" : 0.459556, "z" : 0.090000, "yaw" : 1.794273 }}
+{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : 0.224889, "y" : 0.469333, "z" : 0.090000, "yaw" : -0.881872 }}
