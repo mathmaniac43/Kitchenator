@@ -35,3 +35,9 @@ def getMode():
     data['goalIngredient'] = states.goalIngredient
     jData = json.dumps(data)
     return jData
+
+@post('/setArmGoalState')
+def setArmGoalState():
+    req_obj = json.loads(request.body.read())
+    states.armGoalState = req_obj["armGoalState"]
+    states.gripperState = req_obj["gripperState"]

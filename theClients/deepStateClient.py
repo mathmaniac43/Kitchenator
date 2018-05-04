@@ -50,8 +50,9 @@ while runState:
             print('Standby state, no goal ingredient')
     elif currentState == "grab":
         data['armGoalState'] = 'go'
+        data['gripperState'] = 'open'
         json_data = json.dumps(data)
-        c.request('POST', '/setState', json_data)
+        c.request('POST', '/setArmGoalState', json_data)
         doc = c.getresponse().read()
 
     elif currentState == "deliver":
