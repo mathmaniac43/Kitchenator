@@ -31,10 +31,10 @@ def init():
     Vision-related states
     '''    
     global ingredientColorMap
-    ingredientColorMap = {'nutmeg': 'blue', 'flour': 'orange'}
+    ingredientColorMap = {'nutmeg': 'blue', 'flour': 'purple'}
 
     global colorPoses
-    colorPoses = { 'purple': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}, 'blue': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}, 'orange': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}}
+    colorPoses = None
 
     ''' Gesture State '''
     global gesture 

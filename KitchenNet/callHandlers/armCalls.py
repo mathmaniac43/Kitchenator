@@ -10,7 +10,12 @@ from . import states
 def getArmGoals():
     data = {}
     data['armGoalState'] = states.armGoalState
-    data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
+    
+    if states.colorPoses and not states.goalIngredient == 'none':
+        data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
+    else:
+        data['armGoalPose'] = ""
+        
     json_data = json.dumps(data)
     return json_data
 

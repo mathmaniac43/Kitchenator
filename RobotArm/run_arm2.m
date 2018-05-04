@@ -12,7 +12,7 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 0;     % set to 1 to connect to kitchenNET server
+use_connection = 1;     % set to 1 to connect to kitchenNET server
 use_robot = 1;          % set to 1 to connect to Cyton viewer
 
 use_simple = 0;         % find ik of single goal point and send to cyton
@@ -86,7 +86,7 @@ while (1)
         end
         
         % Get latest goal point
-        data = webread(url_goal, options);
+        data = webread(url_goals, options);
         goal_msg = jsondecode(data);
         goal_cmd = length(goal_msg);
     
@@ -116,15 +116,17 @@ while (1)
         elseif strcmp(goal_msg.armGoalState,'go')
             if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
                 pose = goal_msg.armGoalPose;
-                x = double(pose.x);
-                y = double(pose.y);
-                z = double(pose.z);
-                yaw = double(pose.yaw);
-                % TODO: figure out appropriate roll & pitch
-                robot.gripper_goal = goal_msg.gripperState;
-                robot.T_goal = SE3(trotz(yaw)*transl(x, y, z));
-                robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
-                robot.mode = 'plan';
+                if ~isempty(pose)
+                    x = double(pose.x);
+                    y = double(pose.y);
+                    z = double(pose.z);
+                    yaw = double(pose.yaw);
+                    % TODO: figure out appropriate roll & pitch
+                    robot.gripper_goal = goal_msg.gripperState;
+                    robot.T_goal = SE3(trotz(yaw)*transl(x, y, z));
+                    robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
+                    robot.mode = 'plan';
+                end
             end
             tic
         elseif stcmp(goal_msg.armGoalState,'dump')
