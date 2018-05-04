@@ -66,6 +66,8 @@ while runState:
             doc = c.getresponse().read()
             d = json.loads(doc)
             if d['currentArmState'] == 'move' or d['currentArmState'] == 'plan':
+                # Wait a damn second
+                time.sleep(delayTime - ((time.time() - starttime) % delayTime))
                 continue
             elif d['currentArmState'] == 'idle':
                 # Gripper should be closed on cup handle now,
@@ -81,8 +83,34 @@ while runState:
 
     elif currentState == "deliver":
         print("Deliver state")
+        if not armGoingToDeliver:
+            data {}
+            data['armGoalState'] = 'go'
+            data['gripperState'] = 'close'
+            json_data = json.dumps(data)
+            c.request('POST', '/setArmGoalState', json_data)
+            doc = c.getresponse().read()
+            armGoingToDeliver = True
+        else:
+            # Get current arm state (idle/plan/move)
+            c.request('GET', '/getCurrentArmState')
+            doc = c.getresponse().read()
+            d = json.loads(doc)
+            if d['currentArmState'] == 'move' or d['currentArmState'] == 'plan':
+                continue
+            elif d['currentArmState'] == 'idle':
+                # Gripper should be closed on cup handle now,
+                # set arm goal to dump
+                data = {}
+                data['nuState'] = 'dump'
+                json_data = json.dumps(data)
+                c.request('POST', '/setState', json_data)
+                doc = c.getresponse().read()
 
-    elif currentState == "return":
+                armGoingToPickupIngredient = False
+                continue
+
+    elif currentState == "rehome":
         print("Return state")
     else:
         print("INVALID SYSTEM STATE, setting to standby")
