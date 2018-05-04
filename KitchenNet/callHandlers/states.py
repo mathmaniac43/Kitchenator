@@ -3,9 +3,9 @@ from enum import Enum
 WORKING = False
 
 if WORKING:
-    KSTATE = Enum('standby', 'seek', 'deliver', 'return')
+    KSTATE = Enum('standby', 'grab', 'deliver', 'return')
 else:
-    KSTATE = Enum('KSTATE', 'standby seek deliver return')
+    KSTATE = Enum('KSTATE', 'standby grab deliver return')
 
 
 def init():
