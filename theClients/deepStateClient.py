@@ -84,7 +84,7 @@ while runState:
     elif currentState == "deliver":
         print("Deliver state")
         if not armGoingToDeliver:
-            data {}
+            data = {}
             data['armGoalState'] = 'go'
             data['gripperState'] = 'close'
             json_data = json.dumps(data)

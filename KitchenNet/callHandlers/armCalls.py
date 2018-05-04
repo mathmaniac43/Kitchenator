@@ -10,7 +10,7 @@ from . import states
 def getArmGoals():
     data = {}
     data['armGoalState'] = states.armGoalState
-    
+    data['gripperState'] = states.gripperState
     if states.colorPoses and not states.goalIngredient == 'none':
         data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
     else:
