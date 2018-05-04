@@ -3,9 +3,9 @@ from enum import Enum
 WORKING = False
 
 if WORKING:
-    KSTATE = Enum('standby', 'seek', 'deliver', 'return')
+    KSTATE = Enum('standby', 'grab', 'deliver', 'rehome')
 else:
-    KSTATE = Enum('KSTATE', 'standby seek deliver return')
+    KSTATE = Enum('KSTATE', 'standby grab deliver rehome')
 
 
 def init():
@@ -16,18 +16,22 @@ def init():
 
     ''' Arm State '''
     global armGoalState
-    armGoalState = 'stop' # out of 'stop', 'go'
+    armGoalState = 'stop' # out of 'stop', 'go', 'dump'
+
+    global currentArmState
+    currentArmState = 'idle' # out of 'idle', 'plan', 'move'
+
     global armGoalPose 
     armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
 
+    global gripperState
+    gripperState = "open"
+
     '''
     Vision-related states
-    '''
-    global ingredientPos 
-    ingredientPos = {'nutmeg': [0,0,0], 'ketamine': [0,0,0]}  # x,y,z
-    
+    '''    
     global ingredientColorMap
-    ingredientColorMap = {'nutmeg': 'blue', 'ketamine': 'orange'}
+    ingredientColorMap = {'nutmeg': 'blue', 'flour': 'orange'}
 
     global colorPoses
     colorPoses = { 'purple': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}, 'blue': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}, 'orange': {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}}
