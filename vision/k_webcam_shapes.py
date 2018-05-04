@@ -17,6 +17,9 @@ DISTANCE_TO_M = 0.01
 ORIGIN_OFFSET_R_DIST = -13.0 # cm
 ORIGIN_OFFSET_D_DIST = -08.5 # cm
 
+DUMP_OFFSET_R_DIST =  05.0 # cm
+DUMP_OFFSET_D_DIST = -10.0 #cm
+
 MAX_SQUARE_AGE = 30 # loop iterations
 
 PAIR_TOL = 0.2
@@ -27,7 +30,11 @@ BLACK_ORANGE_SPACING_RATIO = 1.1
 BLACK_BLUE_SPACING_RATIO = 1.1
 BLACK_PURPLE_SPACING_RATIO = 1.1
 
+SLEEP_PER_LOOP = 1.0 / 20.0
+
 ENABLE_COMMS = True
+COMMS_LOOP_LIMIT = 1.0 / SLEEP_PER_LOOP;
+
 # Variables
 origin_x = -1
 origin_y = -1
@@ -42,6 +49,11 @@ orange_y = -1
 orange_rot = 0
 orange_json = None
 
+dump_x = -1
+dump_y = -1
+dump_rot = 0
+dump_json = None
+
 blue_x = -1
 blue_y = -1
 blue_rot = 0
@@ -54,6 +66,8 @@ purple_json = None
 
 pixels_per_unit_length = -1
 
+count_since_last_comms = 0
+
 squares = []
 
 setup_gui()
@@ -63,6 +77,8 @@ if ENABLE_COMMS:
     client = httplib.HTTPConnection('127.0.0.1', 12345)
 
 while True:
+    time.sleep(SLEEP_PER_LOOP)
+    
     # Stop acquiring and processing when the 'Q' key is pressed.
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
@@ -85,9 +101,6 @@ while True:
     
     # Detect all contours in the image.
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    cv2.namedWindow("gray")
-    cv2.imshow("gray", gray)
     
     edged = cv2.Canny(gray, canny_min, canny_max, 4)
     (contours, _) = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -184,6 +197,16 @@ while True:
         
         # Surround squares together in orange rectangle.
         cv2.drawContours(edited_image, [bk_rd], -1, (0, 0, 255), 2)
+        
+        # Handle dump location.
+        dump_offset_r = DUMP_OFFSET_R_DIST * pixels_per_unit_length
+        dump_offset_d = DUMP_OFFSET_D_DIST * pixels_per_unit_length
+        
+        dump_rot = orange_rot
+        (dump_x, dump_y) = apply_transform((orange_x, orange_y), dump_rot, (dump_offset_r, dump_offset_d), True)
+        
+        # Yellow circle about the dump, signifying a live update.
+        cv2.circle(edited_image, (dump_x, dump_y), 5, (0, 255, 255))
     
     # Detect black and purple pair.
     (black, purple) = find_pair(squares, "black", "purple", BLACK_PURPLE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
@@ -236,13 +259,28 @@ while True:
         down = down / pixels_per_unit_length
 
         orange_json = to_position_json(
-            "orange",
+            "orange actual",
             right * DISTANCE_TO_M,
             down * DISTANCE_TO_M,
             orange_rot,
             origin_rot
         )
         cv2.putText(edited_image, orange_json, (orange_x + 5, orange_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
+        
+        # Handle dump
+        
+        (right, down) = inverse_transform((origin_x, origin_y), origin_rot, (dump_x, dump_y))
+        right = right / pixels_per_unit_length
+        down = down / pixels_per_unit_length
+
+        dump_json = to_position_json(
+            "orange", # cheating, but that's fine
+            right * DISTANCE_TO_M,
+            down * DISTANCE_TO_M,
+            dump_rot,
+            origin_rot
+        )
+        cv2.putText(edited_image, dump_json, (dump_x + 5, dump_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
     
     # Label last known position of blue.
     if blue_x >= 0 and blue_y >= 0:
@@ -277,13 +315,17 @@ while True:
             origin_rot
         )
         cv2.putText(edited_image, purple_json, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
-    
-    if ENABLE_COMMS and orange_json != None and blue_json != None and purple_json != None:
-        full_json = '{%s, %s, %s}' % (orange_json, blue_json, purple_json)
-        print ('Sending %s' % full_json)
-        client.request('POST', '/setColorPoses', full_json)
-        doc = client.getresponse().read()
-        time.sleep(1)
+        
+    if ENABLE_COMMS and dump_json != None and blue_json != None and purple_json != None:
+        print 'counting until comms %02d / %02d' % (count_since_last_comms, COMMS_LOOP_LIMIT)
+        if count_since_last_comms < COMMS_LOOP_LIMIT:
+            count_since_last_comms = count_since_last_comms + 1
+        else:
+            count_since_last_comms = 0
+            full_json = '{%s, %s, %s}' % (dump_json, blue_json, purple_json)
+            print ('Sending %s' % full_json)
+            client.request('POST', '/setColorPoses', full_json)
+            doc = client.getresponse().read()
     
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:

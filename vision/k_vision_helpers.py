@@ -224,6 +224,8 @@ def to_position_json(c, right, down, rot, origin_rot):
     z = 0
     if c == "purple" or c == "blue":
         z = 0.09 # 9 cm
+    if c == "orange":
+        z = 0.2 # 20 cm
     
     # zero in line with origin's right axis, clockwise
     zero_rel_rot = rot - origin_rot
@@ -233,6 +235,13 @@ def to_position_json(c, right, down, rot, origin_rot):
     
     # zero in line with robot's +X axis, counterclockwise
     x_rot = neg_zero_rel_rot + math.pi/2
+    if c == "purple":
+        x_rot = x_rot + math.pi
+    
+    while x_rot < -math.pi:
+        x_rot = x_rot + 2*math.pi
+    while x_rot > math.pi:
+        x_rot = x_rot - 2*math.pi
     
     return '"%s" : { "x" : %f, "y" : %f, "z" : %f, "yaw" : %f }' % (c, x, y, z, x_rot)
     
