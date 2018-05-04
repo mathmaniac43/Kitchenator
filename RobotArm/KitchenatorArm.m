@@ -18,6 +18,8 @@ classdef KitchenatorArm < handle
         q_measured = [];
         q_next
         mask = [1 1 1 0 0 0];
+        gripper_current;
+        gripper_goal;
         q_tol = 0.2;            % joint angle tolerance
     end
     
@@ -34,12 +36,18 @@ classdef KitchenatorArm < handle
         function move(obj,joints,gripper_pos)
             %MOVE Sends joints + gripper position over udp connection
             %   [in] joints : joint angles in radians
-            %   [in] gripper_pos : gripper position in meters
-            desiredAngles = [joints gripper_pos];
+            %   [in] gripper_pos : gripper open/closed
+            if (strcmp(gripper_pos, 'open'))
+                gripper_val = obj.open_gripper;
+            elseif (strcmp(gripper_pos,'close'))
+                gripper_val = obj.closed_gripper;
+            end
+            desiredAngles = [joints gripper_val];
             if (~isempty(obj.udp))
                 obj.udp.putData(typecast(desiredAngles,'uint8'));
                 obj.update(joints);
             end
+            obj.gripper_current = gripper_pos;
         end
         
         function sim(obj,joints)
