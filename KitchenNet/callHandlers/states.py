@@ -3,9 +3,9 @@ from enum import Enum
 WORKING = False
 
 if WORKING:
-    KSTATE = Enum('standby', 'grab', 'deliver', 'return')
+    KSTATE = Enum('standby', 'grab', 'deliver', 'rehome')
 else:
-    KSTATE = Enum('KSTATE', 'standby grab deliver return')
+    KSTATE = Enum('KSTATE', 'standby grab deliver rehome')
 
 
 def init():
@@ -16,7 +16,7 @@ def init():
 
     ''' Arm State '''
     global armGoalState
-    armGoalState = 'stop' # out of 'stop', 'go'
+    armGoalState = 'stop' # out of 'stop', 'go', 'dump'
 
     global currentArmState
     currentArmState = 'idle' # out of 'idle', 'plan', 'move'

@@ -11,13 +11,17 @@ from . import states
 def string2State(x):
     return {
         'standby': states.KSTATE.standby,
-        'seek': states.KSTATE.seek,
+        'grab': states.KSTATE.grab,
+        'deliver': states.KSTATE.deliver,
+        'rehome': states.KSTATE.rehome
     }[x]
 
 def state2String(x):
     return {
         states.KSTATE.standby : 'standby',
-        states.KSTATE.seek : 'seek',
+        states.KSTATE.grab : 'grab',
+        states.KSTATE.deliver: 'deliver',
+        states.KSTATE.rehome: 'rehome'
     }[x]
 
 @post('/setState')

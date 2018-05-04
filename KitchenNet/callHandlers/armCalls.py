@@ -14,6 +14,13 @@ def getArmGoals():
     json_data = json.dumps(data)
     return json_data
 
+@get('/getCurrentArmState')
+def getCurrentArmState():
+    data = {}
+    data['currentArmState'] = states.currentArmState
+    json_data = json.dumps(data)
+    return json_data
+
 @post('/setCurrentArmState')
 def setCurrentArmState():
     req_obj = json.loads(request.body.read())

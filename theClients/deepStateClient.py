@@ -14,6 +14,9 @@ c = httplib.HTTPConnection('127.0.0.1', 12345)
 
 runState = True
 delayTime = 1.0
+
+armGoingToPickupIngredient = False
+
 while runState:
     print('evaluating state....')
     
@@ -49,11 +52,18 @@ while runState:
         else:
             print('Standby state, no goal ingredient')
     elif currentState == "grab":
-        data['armGoalState'] = 'go'
-        data['gripperState'] = 'open'
-        json_data = json.dumps(data)
-        c.request('POST', '/setArmGoalState', json_data)
-        doc = c.getresponse().read()
+        if not armGoingToPickupIngredient:
+            data['armGoalState'] = 'go'
+            data['gripperState'] = 'open'
+            json_data = json.dumps(data)
+            c.request('POST', '/setArmGoalState', json_data)
+            doc = c.getresponse().read()
+            armGoingToPickupIngredient = True
+        elif armGoingToPickupIngredient:
+            # Get current arm state (idle/plan/move)
+            c.request('GET', '/getCurrentArmState')
+            doc = c.getresponse().read()
+            d = json.loads(doc)
 
     elif currentState == "deliver":
         print("Deliver state")
