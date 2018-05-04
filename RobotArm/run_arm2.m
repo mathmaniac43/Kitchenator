@@ -12,17 +12,18 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 1;     % set to 1 to connect to kitchenNET server
+use_connection = 0;     % set to 1 to connect to kitchenNET server
 use_robot = 1;          % set to 1 to connect to Cyton viewer
 
-use_simple = 1;         % find ik of single goal point and send to cyton
+use_simple = 0;         % find ik of single goal point and send to cyton
 use_joint_traj = 0;     % compute joint space trajectory
-use_cartesian_traj = 0; % compute cartesian trajectory
+use_cartesian_traj = 1; % compute cartesian trajectory
 
 %% Configuration
 send_state_threshold = 20;
 send_state_count = 1;
-url = 'http://127.0.0.1:12345/getArmGoals';
+url_goals = 'http://127.0.0.1:12345/getArmGoals';
+url_state = 'http://127.0.0.1:12345/setCurrentArmState';
 options = weboptions('RequestMethod', 'get'); % could also be 'post'
 
 %% Initialization
@@ -44,15 +45,18 @@ else
 end
 
 if (~use_connection)
-   fid = fopen('test_points2.txt');
+   fid = fopen('test_points3.txt');
 end
 
 % Initialize robot arm
 robot = KitchenatorArm(udp_connection, cyton);
 robot.T_goal = SE3(transl(0,0,0));
+robot.gripper_current = 'open';
+robot.gripper_goal = 'open';
 if (use_robot)
     while (isempty(robot.q_measured))
         [reached, qdiff] = robot.measure();
+        disp('Waiting for robot angles');
     end
     disp('got current position')
     robot.update(robot.q_measured(1:7));
@@ -78,18 +82,16 @@ while (1)
         % Send current state information
         if (mod(send_state_count, send_state_threshold) == 0)
             state_msg = jsonencode(struct('state',robot.mode));
-            response = webwrite(url, state_msg, options);
+            response = webwrite(url_state, state_msg, options);
         end
         
         % Get latest goal point
-        data = webread(url, options);
-        if strcmp(robot.mode,'idle')
-            goal_msg = jsondecode(data);
-            goal_cmd = length(goal_msg);
-        end
+        data = webread(url_goal, options);
+        goal_msg = jsondecode(data);
+        goal_cmd = length(goal_msg);
     
     % Test with other points
-    elseif strcmp(robot.mode,'idle')
+    else
         goal_raw = fgetl(fid);
         % Points from file
         if (goal_raw ~= -1)
@@ -109,12 +111,36 @@ while (1)
         % Check for stop signal
         if strcmp(goal_msg.armGoalState,'stop')
             robot.mode = 'stop';
+            % keep updating gripper
+%             robot.move(robot.q_current, goal_msg.gripperState);
         elseif strcmp(goal_msg.armGoalState,'go')
-            pose = goal_msg.armGoalPose;
-            robot.T_goal = SE3(trotz(double(pose.yaw))*transl(double(pose.x), double(pose.y), double(pose.z)));
-            robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
-            robot.mode = 'plan';
+            if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
+                pose = goal_msg.armGoalPose;
+                x = double(pose.x);
+                y = double(pose.y);
+                z = double(pose.z);
+                yaw = double(pose.yaw);
+                % TODO: figure out appropriate roll & pitch
+                robot.gripper_goal = goal_msg.gripperState;
+                robot.T_goal = SE3(trotz(yaw)*transl(x, y, z));
+                robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
+                robot.mode = 'plan';
+            end
             tic
+        elseif stcmp(goal_msg.armGoalState,'dump')
+            % CHECK IF THIS WORKS ON BOTH SIDES
+            if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
+                rotated = robot.q_current;
+                rotated(7) = rotated(7)-pi/3;
+                robot.move(rotated, robot.gripper_current);
+            end
+        elseif stcmp(goal_msg.armGoalState,'undump')
+            % CHECK IF THIS WORKS ON BOTH SIDES
+            if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
+                rotated = robot.q_current;
+                rotated(7) = rotated(7)+pi/3;
+                robot.move(rotated, robot.gripper_current);
+            end
         end
     end
     
@@ -148,7 +174,6 @@ while (1)
             q0 = robot.q_goal;
             for i = N_steps-1:-1:1
                  q = cyton.ikine(robot.T_traj(i),'q0',q0, 'mask', robot.mask);
-%                 q = cyton.ikcon(robot.T_traj(i),'q0',q0, 'mask', robot.mask);
                 if isempty(q)
                     robot.q_traj = [];
                     break;
@@ -199,7 +224,7 @@ while (1)
                 % Send to robot
                 if (confirm == 'y')
                     disp('sent joints')
-                    robot.move(robot.q_next, robot.open_gripper);
+                    robot.move(robot.q_next, robot.gripper_current);
                 end
             end
             
@@ -207,10 +232,12 @@ while (1)
             
             % Check if trajectory is complete
             if (done)
+                robot.move(robot.q_current, robot.gripper_goal);
                 disp('Completed trajectory');
                 qdiff
                 robot.T_current
                 robot.mode = 'idle';
+                pause
             end
         end
     else
