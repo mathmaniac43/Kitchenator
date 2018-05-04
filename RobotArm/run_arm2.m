@@ -116,7 +116,6 @@ while (1)
         elseif strcmp(goal_msg.armGoalState,'go')
             if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
                 pose = goal_msg.armGoalPose;
-<<<<<<< Updated upstream
                 if ~isempty(pose)
                     x = double(pose.x);
                     y = double(pose.y);
@@ -124,31 +123,20 @@ while (1)
                     yaw = double(pose.yaw);
                     % TODO: figure out appropriate roll & pitch
                     robot.gripper_goal = goal_msg.gripperState;
-                    robot.T_goal = SE3(trotz(yaw)*transl(x, y, z));
-                    robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
+                    robot.T_goal = SE3(transl(x, y, z)*trotz(yaw));
+                    robot.mask = [1 1 1 0 0 0]; %goal_msg.mask;
                     robot.mode = 'plan';
                 end
-=======
-                x = double(pose.x);
-                y = double(pose.y);
-                z = double(pose.z);
-                yaw = double(pose.yaw);
-                % TODO: figure out appropriate roll & pitch
-                robot.gripper_goal = goal_msg.gripperState;
-                robot.T_goal = SE3(transl(x, y, z)*trotz(yaw));
-                robot.mask = [1 1 1 0 0 0]; %goal_msg.mask;
-                robot.mode = 'plan';
->>>>>>> Stashed changes
             end
             tic
-        elseif stcmp(goal_msg.armGoalState,'dump')
+        elseif strcmp(goal_msg.armGoalState,'dump')
             % CHECK IF THIS WORKS ON BOTH SIDES
             if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
                 rotated = robot.q_current;
                 rotated(7) = rotated(7)-pi/3;
                 robot.move(rotated, robot.gripper_current);
             end
-        elseif stcmp(goal_msg.armGoalState,'undump')
+        elseif strcmp(goal_msg.armGoalState,'undump')
             % CHECK IF THIS WORKS ON BOTH SIDES
             if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
                 rotated = robot.q_current;

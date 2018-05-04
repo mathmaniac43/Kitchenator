@@ -12,7 +12,10 @@ def getArmGoals():
     data['armGoalState'] = states.armGoalState
     data['gripperState'] = states.gripperState
     if states.colorPoses and not states.goalIngredient == 'none':
-        data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
+        if states.armGoalState == 'deliver' or states.armGoalState == 'dump' or states.armGoalState == 'undump':
+            data['armGoalPose'] = states.colorPoses["orange"]
+        else:
+            data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
     else:
         data['armGoalPose'] = ""
         
