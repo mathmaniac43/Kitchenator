@@ -1,6 +1,11 @@
 from enum import Enum
-KSTATE = Enum('standby', 'seek', 'deliver', 'return')
 
+WORKING = False
+
+if WORKING:
+    KSTATE = Enum('standby', 'seek', 'deliver', 'return')
+else:
+    KSTATE = Enum('standby seek deliver return')
 
 
 def init():
