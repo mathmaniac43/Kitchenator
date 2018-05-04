@@ -16,7 +16,7 @@ def init():
 
     ''' Arm State '''
     global armGoalState
-    armGoalState = 'stop' # out of 'stop', 'go', 'dump'
+    armGoalState = 'stop' # out of 'stop', 'go', 'dump', 'undump'
 
     global currentArmState
     currentArmState = 'idle' # out of 'idle', 'plan', 'move'

@@ -16,6 +16,7 @@ runState = True
 delayTime = 1.0
 
 armGoingToPickupIngredient = False
+armGoingToDeliver = False
 
 while runState:
     print('evaluating state....')
@@ -54,7 +55,7 @@ while runState:
     elif currentState == "grab":
         if not armGoingToPickupIngredient:
             data['armGoalState'] = 'go'
-            data['gripperState'] = 'open'
+            data['gripperState'] = 'close'
             json_data = json.dumps(data)
             c.request('POST', '/setArmGoalState', json_data)
             doc = c.getresponse().read()
@@ -64,6 +65,19 @@ while runState:
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
             d = json.loads(doc)
+            if d['currentArmState'] == 'move' or d['currentArmState'] == 'plan':
+                continue
+            elif d['currentArmState'] == 'idle':
+                # Gripper should be closed on cup handle now,
+                # set Kitchenator state to deliver
+                data = {}
+                data['nuState'] = 'deliver'
+                json_data = json.dumps(data)
+                c.request('POST', '/setState', json_data)
+                doc = c.getresponse().read()
+
+                armGoingToPickupIngredient = False
+                continue
 
     elif currentState == "deliver":
         print("Deliver state")
