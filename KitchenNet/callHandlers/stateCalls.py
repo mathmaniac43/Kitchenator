@@ -25,6 +25,8 @@ def setMode():
     req_obj = json.loads(request.body.read())
     # print(req_obj)
     states.kitchenatorState = string2State(req_obj["nuState"])
+    if states.kitchenatorState == states.KSTATE.grab:
+        states.goalIngredient = states.ingredientColorMap[states.goalIngredient]
     print('New State set to {}'.format(states.kitchenatorState))
     return 'mode set to {}!'.format(states.kitchenatorState)
 
