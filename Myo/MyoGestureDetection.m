@@ -105,7 +105,7 @@ while(1)
     if value > 200
         %gesture is GO
         gesture = 1
-    elseif value > 100
+    elseif value > 50
         %gesture is STOP
         gesture = 2
     else
