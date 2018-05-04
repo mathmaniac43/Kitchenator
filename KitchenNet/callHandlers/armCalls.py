@@ -10,6 +10,6 @@ from . import states
 def getArmGoals():
     data = {}
     data['armGoalState'] = states.armGoalState
-    data['armGoalPose'] = states.armGoalPose
+    data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
     json_data = json.dumps(data)
     return json_data
