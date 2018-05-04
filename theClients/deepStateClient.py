@@ -17,6 +17,7 @@ delayTime = 1.0
 
 armGoingToPickupIngredient = False
 armGoingToDeliver = False
+armGoingToDump = False
 
 while runState:
     print('evaluating state....')
@@ -60,14 +61,14 @@ while runState:
             c.request('POST', '/setArmGoalState', json_data)
             doc = c.getresponse().read()
             armGoingToPickupIngredient = True
+            # Wait a damn second
+            time.sleep(delayTime - ((time.time() - starttime) % delayTime))
         elif armGoingToPickupIngredient:
             # Get current arm state (idle/plan/move)
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
             d = json.loads(doc)
             if d['currentArmState'] == 'move' or d['currentArmState'] == 'plan':
-                # Wait a damn second
-                time.sleep(delayTime - ((time.time() - starttime) % delayTime))
                 continue
             elif d['currentArmState'] == 'idle':
                 # Gripper should be closed on cup handle now,
@@ -83,7 +84,7 @@ while runState:
 
     elif currentState == "deliver":
         print("Deliver state")
-        if not armGoingToDeliver:
+        if not armGoingToDeliver and not armGoingToDump:
             data = {}
             data['armGoalState'] = 'go'
             data['gripperState'] = 'close'
@@ -91,7 +92,7 @@ while runState:
             c.request('POST', '/setArmGoalState', json_data)
             doc = c.getresponse().read()
             armGoingToDeliver = True
-        else:
+        elif armGoingToDeliver and not armGoingToDump:
             # Get current arm state (idle/plan/move)
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
@@ -108,8 +109,19 @@ while runState:
                 c.request('POST', '/setArmGoalState', json_data)
                 doc = c.getresponse().read()
 
-                armGoingToPickupIngredient = False
+                armGoingToDump = True
+                # Wait a damn second
+                time.sleep(delayTime - ((time.time() - starttime) % delayTime))
                 continue
+        elif armGoingToDump:
+            # Get current arm state (idle/plan/move)
+            c.request('GET', '/getCurrentArmState')
+            doc = c.getresponse().read()
+            d = json.loads(doc)
+            if d['currentArmState'] == 'move' or d['currentArmState'] == 'plan':
+                continue
+            elif d['currentArmState'] == 'idle':
+                print('arm completed dump')
 
     elif currentState == "rehome":
         print("Return state")
