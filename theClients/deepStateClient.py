@@ -102,9 +102,10 @@ while runState:
                 # Gripper should be closed on cup handle now,
                 # set arm goal to dump
                 data = {}
-                data['nuState'] = 'dump'
+                data['armGoalState'] = 'dump'
+                data['gripperState'] = 'close'
                 json_data = json.dumps(data)
-                c.request('POST', '/setState', json_data)
+                c.request('POST', '/setArmGoalState', json_data)
                 doc = c.getresponse().read()
 
                 armGoingToPickupIngredient = False
