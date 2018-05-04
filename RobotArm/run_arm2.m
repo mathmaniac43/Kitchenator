@@ -97,7 +97,7 @@ while (1)
         if (goal_raw ~= -1)
             goal_msg = jsondecode(goal_raw);
         % Points from  user
-        else
+        elseif strcmp(robot.mode,'idle')
             goal_raw = input('goal_msg: (e.g. {"x":0.3,"y":0.3,"z":0.1,"yaw":0,"mode":"go","mask":[1,1,1,1,1,1]})\n');
             if (~isempty(goal_raw))
                 goal_msg = jsondecode(goal_raw);
@@ -116,6 +116,7 @@ while (1)
         elseif strcmp(goal_msg.armGoalState,'go')
             if strcmp(robot.mode,'idle')||strcmp(robot.mode,'stop')
                 pose = goal_msg.armGoalPose;
+<<<<<<< Updated upstream
                 if ~isempty(pose)
                     x = double(pose.x);
                     y = double(pose.y);
@@ -127,6 +128,17 @@ while (1)
                     robot.mask = [1 1 1 0 0 1]; %goal_msg.mask;
                     robot.mode = 'plan';
                 end
+=======
+                x = double(pose.x);
+                y = double(pose.y);
+                z = double(pose.z);
+                yaw = double(pose.yaw);
+                % TODO: figure out appropriate roll & pitch
+                robot.gripper_goal = goal_msg.gripperState;
+                robot.T_goal = SE3(transl(x, y, z)*trotz(yaw));
+                robot.mask = [1 1 1 0 0 0]; %goal_msg.mask;
+                robot.mode = 'plan';
+>>>>>>> Stashed changes
             end
             tic
         elseif stcmp(goal_msg.armGoalState,'dump')
@@ -239,7 +251,6 @@ while (1)
                 qdiff
                 robot.T_current
                 robot.mode = 'idle';
-                pause
             end
         end
     else
