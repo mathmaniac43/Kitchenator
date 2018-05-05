@@ -38,6 +38,7 @@ def setArmGoalState(client, armGoalState, gripperState):
     client.request('POST', '/setArmGoalState', json_data)
     doc = client.getresponse().read()
 
+currentGesture = 0
 while runState:
 
     data = {}
@@ -47,7 +48,10 @@ while runState:
     doc = c.getresponse().read()
     d = json.loads(doc)
     print(d)
-    currentGesture = d[u'gesture']
+    
+    if d[u'gesture'] is not 0:
+        currentGesture = d[u'gesture']
+        
     print(currentGesture)
     if currentGesture == 2: # The halt gesture 
         print('Halt gesture detected, setting to standby, stopping arm')

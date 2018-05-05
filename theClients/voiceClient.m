@@ -21,11 +21,15 @@ flour=abs(flour);
 %plot(flour)
 
 while true
+    close all
     figure('color','white','menu','none')
     text(0.5,0.5, 'Press to speak', 'FontSize', 50, 'Color', 'k','HorizontalAlignment','Center','VerticalAlignment','Middle')
     axis off
     recorder = audiorecorder
     k=waitforbuttonpress
+    if k == 1
+        continue
+    end
     clf
     axis off
     text(0.5,0.5,'Speak Now', 'FontSize', 50, 'Color', 'k','HorizontalAlignment','Center','VerticalAlignment','Middle')
@@ -49,6 +53,7 @@ while true
 
     if (maxNut < 50) && (maxCin < 50)
         ingredient = 'invalid'
+        continue
     elseif maxNut > maxCin
         %Ingredient is nutmeg
         ingredient = 'nutmeg'

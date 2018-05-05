@@ -10,7 +10,7 @@ from . import states
 def setGestureState():
     req_obj = json.loads(request.body.read())
     print(req_obj)
-    states.gesture = req_obj['gesture']
+    states.gesture = req_obj
     return 'gesture set to {}!'.format(states.gesture)
 
 @get('/getGestureState')

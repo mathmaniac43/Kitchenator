@@ -143,7 +143,7 @@ while(1)
     %Binary Sum
     emgData2(:,25)=emgData2(:,19)*128 + emgData2(:,20)*64 + emgData2(:,18)*32 + emgData2(:,21)*16 + emgData2(:,17)*8 + emgData2(:,22)*4 + emgData2(:,23)*2 + emgData2(:,24)*1;
 
-    plot(emgData2(:,26),emgData2(:,25))
+    %plot(emgData2(:,26),emgData2(:,25))
 
     value = sum(emgData2(:,25))/1000
     preValue(1:end-1,1) = preValue(2:end,1)
@@ -161,7 +161,7 @@ while(1)
     end
     %jsonencode({'gesture',gesture})
     
-    %response = webwrite(url, num2str(gesture), options);
+    response = webwrite(url, num2str(gesture), options);
     
         
     pause(0.05)
