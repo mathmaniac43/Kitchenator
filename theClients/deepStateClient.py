@@ -52,7 +52,7 @@ while runState:
     if currentGesture == 2: # The halt gesture 
         print('Halt gesture detected, setting to standby, stopping arm')
         # Setting standby state
-        setKState(c, 'standby')
+        #setKState(c, 'standby')
         # Stopping arm
         setArmGoalState(c, 'stop', 'same')
         time.sleep(delayTime - ((time.time() - starttime) % delayTime))
