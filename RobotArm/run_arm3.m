@@ -16,7 +16,6 @@ url_poses = [ip_address, 'getAllPoses'];
 url_state = [ip_address, 'setCurrentArmState'];
 options = weboptions('RequestMethod', 'get');
 
-
 % minivie_path = 'C:\git\minivie';
 minivie_path = '/Users/yehby1/Documents/MATLAB/Human Robot Interaction/minivie';
 
@@ -82,11 +81,9 @@ while (1)
     
     % Check for new goalpoints from server
     if (use_connection) 
-        % Send current state information
-        if (mod(send_state_count, send_state_threshold) == 0)
-            state_msg = jsonencode(containers.Map({'state','location'},{robot.state, robot.location}));
-            response = webwrite(url_state, state_msg, options);
-        end
+        % Send current state information       
+        state_msg = jsonencode(containers.Map({'state','location'},{robot.state, robot.location}));
+        response = webwrite(url_state, state_msg, options);
         
         % Get positions
         data = webread(url_poses, options);
@@ -154,7 +151,12 @@ while (1)
             robot.t_step = 1;
             robot.mode = 'go';
         end
-    end    
+    end 
+    
+    robot.mode
+    robot.state
+    robot.location
+    
     if strcmp(robot.mode, 'go')
        robot.state = 'go';
         if isempty(robot.q_next)
