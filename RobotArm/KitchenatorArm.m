@@ -9,6 +9,7 @@ classdef KitchenatorArm < handle
         sim_robot
         mode
         T_goal
+        T_approach
         q_goal
         T_traj
         q_traj
@@ -21,6 +22,8 @@ classdef KitchenatorArm < handle
         gripper_current;
         gripper_goal;
         q_tol = 0.2;            % joint angle tolerance
+        q_undump
+        use_virtual
     end
     
     methods
@@ -37,12 +40,19 @@ classdef KitchenatorArm < handle
             %MOVE Sends joints + gripper position over udp connection
             %   [in] joints : joint angles in radians
             %   [in] gripper_pos : gripper open/closed
+            obj.sim(joints);
+            
             if (strcmp(gripper_pos, 'open'))
                 gripper_val = obj.open_gripper;
             elseif (strcmp(gripper_pos,'close'))
                 gripper_val = obj.closed_gripper;
+            else
+                gripper_val = obj.open_gripper;
             end
             desiredAngles = [joints gripper_val];
+            if (obj.use_virtual)
+                desiredAngles(1:7) = rad2deg(desiredAngles(1:7));
+            end
             if (~isempty(obj.udp))
                 obj.udp.putData(typecast(desiredAngles,'uint8'));
                 obj.update(joints);
@@ -86,7 +96,7 @@ classdef KitchenatorArm < handle
         end
         
         function [reached, qdiff] = measure(obj)
-            if (~isempty(obj.udp))
+            if ((~isempty(obj.udp)) && (~obj.use_virtual))
                 % Read robot joint angles
                 bytes = obj.udp.getData();
                 if (~isempty(bytes))

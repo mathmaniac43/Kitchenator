@@ -1,4 +1,15 @@
-{"gripperState" : "close", "armGoalState" : "go", "armGoalPose": { "x" : -0.24, "y" : 0.5, "z" : 0.090000, "yaw" : 1.794273 }}
+{"gripperState" : "close", "armGoalState" : "go", "armGoalPose": { "x" : -0.4, "y" : 0.301, "z" : 0.09, "yaw" : 1.88 }}
+{"gripperState" : "close", "armGoalState" : "go", "armGoalPose": { "x" : 0.004, "y" : 0.388, "z" : 0.02, "yaw" : 1.88 }}
+{"gripperState" : "close", "armGoalState" : "dump", "armGoalPose": { "x" : 0.004, "y" : 0.388, "z" : 0.02, "yaw" : 1.88 }}
+{"gripperState" : "close", "armGoalState" : "undump", "armGoalPose": { "x" : 0.004, "y" : 0.388, "z" : 0.02, "yaw" : 1.88 }}
+{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : -0.4, "y" : 0.301, "z" : 0.09, "yaw" : 1.88 }}
+{"gripperState" : "close", "armGoalState" : "go", "armGoalPose": { "x" : 0.42, "y" : 0.216, "z" : 0.09, "yaw" : 0.716 }}
+{"gripperState" : "close", "armGoalState" : "go", "armGoalPose": { "x" : 0.004, "y" : 0.388, "z" : 0.02, "yaw" : 1.88 }}
+{"gripperState" : "close", "armGoalState" : "dump", "armGoalPose": { "x" : 0.004, "y" : 0.388, "z" : 0.02, "yaw" : 1.88 }}
+{"gripperState" : "close", "armGoalState" : "undump", "armGoalPose": { "x" : 0.004, "y" : 0.388, "z" : 0.02, "yaw" : 1.88 }}
+{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : 0.42, "y" : 0.216, "z" : 0.09, "yaw" : 0.716 }}
+
+
 {"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : 0.224889, "y" : 0.469333, "z" : 0.090000, "yaw" : -0.881872 }}
 {"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : -0.267259, "y" : 0.459556, "z" : 0.090000, "yaw" : 1.794273 }}
-{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : 0.224889, "y" : 0.469333, "z" : 0.090000, "yaw" : -0.881872 }}
+{"gripperState" : "open", "armGoalState" : "go", "armGoalPose": { "x" : 0.224889, "y" : 0.469333, "z" : 0.090000, "yaw" : -0.help881872 }}
