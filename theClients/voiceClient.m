@@ -24,11 +24,11 @@ while true
     figure('color','white','menu','none')
     text(0.5,0.5, 'Press to speak', 'FontSize', 50, 'Color', 'k','HorizontalAlignment','Center','VerticalAlignment','Middle')
     axis off
+    recorder = audiorecorder
     k=waitforbuttonpress
     clf
     axis off
     text(0.5,0.5,'Speak Now', 'FontSize', 50, 'Color', 'k','HorizontalAlignment','Center','VerticalAlignment','Middle')
-    recorder = audiorecorder
     disp('Start speaking.')
     recordblocking(recorder, 3);
     disp('End of Recording.');
@@ -47,7 +47,9 @@ while true
     maxNut = max(checkNut)
     maxCin = max(checkCin)
 
-    if maxNut > maxCin
+    if (maxNut < 50) && (maxCin < 50)
+        ingredient = 'invalid'
+    elseif maxNut > maxCin
         %Ingredient is nutmeg
         ingredient = 'nutmeg'
     else
