@@ -2,26 +2,28 @@ import httplib
 import time
 import json
 
+from random import randint
+
+
 '''
- The Arm Manager/Client:
-
- -> Queries the state, if state is 'delivering' then query goalPos 
-    (or maybe get it all as one json chunk)
- -> Start moving along waypoints, calling to query the state along the way??
- -> if state is 'delivering' & gesture = $StopGesture then pause, keep waiting for instructions
- -> etc, etc
-
-
+Connects to the KitchenNet server at localhost:8080
+updates the gesture there every second by posting to '/setGestureState'
 '''
 
 starttime = time.time()
-c = httplib.HTTPConnection('localhost', 8080)
+c = httplib.HTTPConnection('127.0.0.1', 12345)
 
 armRun = True
-delayTime = 0.25
+delayTime = 1.0
 while armRun:
-    print('checking state at %f....' % (time.time() - starttime))
-    c.request('GET', '/getArmGoals')
+    armState = raw_input("Enter arm state (move/idle/plan)...")
+    data = {}
+    data['state'] = armState;
+    json_data = json.dumps(data)
+    c.request('POST', '/setCurrentArmState', json_data)
     doc = c.getresponse().read()
     print doc
     time.sleep(delayTime - ((time.time() - starttime) % delayTime))
+
+
+# 'All done'
