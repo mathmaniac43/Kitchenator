@@ -25,7 +25,7 @@ def init():
     armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
 
     global gripperState
-    gripperState = "open"
+    gripperState = "open" # out of 'open', 'close', 'same'
 
     '''
     Vision-related states

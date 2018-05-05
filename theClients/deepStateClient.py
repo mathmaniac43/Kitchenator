@@ -29,15 +29,15 @@ def setKState(client, newState):
     data['nuState'] = newState
     json_data = json.dumps(data)
     client.request('POST', '/setState', json_data)
-    c.getresponse().read()
+    client.getresponse().read()
 
 def setArmGoalState(client, armGoalState, gripperState):
     data = {}
     data['armGoalState'] = armGoalState
     data['gripperState'] = gripperState
     json_data = json.dumps(data)
-    c.request('POST', '/setArmGoalState', json_data)
-    doc = c.getresponse().read()
+    client.request('POST', '/setArmGoalState', json_data)
+    doc = client.getresponse().read()
 
 while runState:
 
@@ -47,12 +47,17 @@ while runState:
     c.request('GET', '/getGestureState')
     doc = c.getresponse().read()
     d = json.loads(doc)
-    if d['gesture'] == 2: # The halt gesture 
+    print(d)
+    currentGesture = d[u'gesture']
+    print(currentGesture)
+    if currentGesture == 2: # The halt gesture 
         print('Halt gesture detected, setting to standby, stopping arm')
         # Setting standby state
         setKState(c, 'standby')
         # Stopping arm
-        setArmGoalState(c, 'stop', 'open')
+        setArmGoalState(c, 'stop', 'same')
+        time.sleep(delayTime - ((time.time() - starttime) % delayTime))
+
         continue
 
     # Assuming no halt, continue with the state machine
@@ -83,6 +88,12 @@ while runState:
                 print('Arm reached standby configuration')
                 # Stop the arm, it's returned to standby mode
                 setArmGoalState(c, 'stop', 'open')
+                data = {}
+                data['goalIngredient'] = "none"
+                json_data = json.dumps(data)
+                client.request('POST', '/setGoalIngredient', json_data)
+                client.getresponse().read()
+
                 armReturningToStandbyConfiguration = False
 
     elif currentState == "grab":
@@ -121,16 +132,17 @@ while runState:
             if d['currentArmState'] == 'move':
                 atSomePointTheArmMoved = True
             elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
-                # Gripper should be closed on cup handle now,
-                # set arm goal to dump
-                atSomePointTheArmMoved = False
-                setArmGoalState(c, 'dump', 'close')
+                # Arm should be at bowl now, check gesture 
+                if currentGesture == 1:
+                    # set arm goal to dump
+                    atSomePointTheArmMoved = False
+                    setArmGoalState(c, 'dump', 'close')
 
-                armGoingToDump = True
-                armGoingToDeliver = False
-                # Wait a damn second
-                time.sleep(delayTime - ((time.time() - starttime) % delayTime))
-                continue
+                    armGoingToDump = True
+                    armGoingToDeliver = False
+                    continue
+                else:
+                    print('Awaiting continue gesture .... ')
         elif armGoingToDump:
             # Get current arm state (idle/plan/move)
             c.request('GET', '/getCurrentArmState')
@@ -143,7 +155,6 @@ while runState:
                 armGoingToDump = False
                 armGoingToUndump = True
                 atSomePointTheArmMoved = False
-                data = {}
                 setArmGoalState(c, 'undump', 'close')
         elif armGoingToUndump:
             # Get current arm state (idle/plan/move)
