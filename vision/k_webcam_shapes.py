@@ -316,7 +316,7 @@ while True:
         )
         cv2.putText(edited_image, purple_json, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
         
-    if ENABLE_COMMS and dump_json != None and blue_json != None and purple_json != None:
+    if dump_json != None and blue_json != None and purple_json != None:
         print 'counting until comms %02d / %02d' % (count_since_last_comms, COMMS_LOOP_LIMIT)
         if count_since_last_comms < COMMS_LOOP_LIMIT:
             count_since_last_comms = count_since_last_comms + 1
@@ -324,8 +324,9 @@ while True:
             count_since_last_comms = 0
             full_json = '{%s, %s, %s}' % (dump_json, blue_json, purple_json)
             print ('Sending %s' % full_json)
-            client.request('POST', '/setColorPoses', full_json)
-            doc = client.getresponse().read()
+            if ENABLE_COMMS:
+                client.request('POST', '/setColorPoses', full_json)
+                doc = client.getresponse().read()
     
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
@@ -372,4 +373,7 @@ while True:
     cv2.imshow(IMAGE_WINDOW_NAME, edited_image)
     cv2.namedWindow(CONTROL_WINDOW_NAME)
 
+if ENABLE_COMMS:
+    client.close()
+    
 close_gui()
