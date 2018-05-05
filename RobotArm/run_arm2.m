@@ -13,8 +13,8 @@ clc; clear all; close all;
 %% Options
 N_steps = 30;           % number of steps in trajectory
 use_connection = 0;     % set to 1 to connect to kitchenNET server
-use_virtual = 1;
-use_robot = 1;          % set to 1 to connect to Cyton viewer
+use_virtual = 0;
+use_robot = 0;          % set to 1 to connect to Cyton viewer
 
 use_simple = 0;         % find ik of single goal point and send to cyton
 use_joint_traj = 0;     % compute joint space trajectory

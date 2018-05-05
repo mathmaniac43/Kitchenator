@@ -8,6 +8,8 @@ classdef KitchenatorArm < handle
         udp
         sim_robot
         mode
+        state
+        location
         T_goal
         T_approach
         q_goal
@@ -24,6 +26,10 @@ classdef KitchenatorArm < handle
         q_tol = 0.2;            % joint angle tolerance
         q_undump
         use_virtual
+        q_neutral;
+        T_neutral;
+        q;
+        idx;
     end
     
     methods
@@ -33,7 +39,7 @@ classdef KitchenatorArm < handle
             %   [in] sim_robot : robotics toolbox cytonE1500 model
             obj.udp = udp;
             obj.sim_robot = sim_robot;
-            obj.mode = 'idle';
+            obj.state = 'idle';
         end
         
         function move(obj,joints,gripper_pos)
