@@ -70,32 +70,11 @@ while runState:
 
     if currentState == "standby":
         print('Standby State')
-        if not armReturningToStandbyConfiguration:
-            if d['goalIngredient'] != 'none':
-                print('Standby state, changing to \'grab\' for new ingredient...')
-                setKState(c, 'grab')
-            else:
-                print('Standby state, no goal ingredient')
+        if d['goalIngredient'] != 'none':
+            print('Standby state, changing to \'grab\' for new ingredient...')
+            setKState(c, 'grab')
         else:
-            print('Returning to standby configuration')
-            # Get current arm state (idle/plan/move)
-            c.request('GET', '/getCurrentArmState')
-            doc = c.getresponse().read()
-            d = json.loads(doc)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
-                print('Arm reached standby configuration')
-                # Stop the arm, it's returned to standby mode
-                setArmGoalState(c, 'stop', 'open')
-                data = {}
-                data['goalIngredient'] = "none"
-                json_data = json.dumps(data)
-                client.request('POST', '/setGoalIngredient', json_data)
-                client.getresponse().read()
-
-                armReturningToStandbyConfiguration = False
-
+            print('Standby state, no goal ingredient')
     elif currentState == "grab":
         print('Grab State')
         if not armGoingToPickupIngredient:
@@ -120,11 +99,12 @@ while runState:
 
     elif currentState == "deliver":
         print("Deliver State")
-        if not armGoingToDeliver and not armGoingToDump:
+        print("armgoingToUndump=" + str(armGoingToUndump))
+        if not armGoingToDeliver and not armGoingToDump and not armGoingToUndump:
             # Direct arm to pick up the goal ingredient
             setArmGoalState(c, 'go', 'close')
             armGoingToDeliver = True
-        elif armGoingToDeliver and not armGoingToDump:
+        elif armGoingToDeliver and not armGoingToDump and not armGoingToUndump:
             # Get current arm state (idle/plan/move)
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
@@ -144,10 +124,12 @@ while runState:
                 else:
                     print('Awaiting continue gesture .... ')
         elif armGoingToDump:
+            print("armGoingToDump")
             # Get current arm state (idle/plan/move)
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
             d = json.loads(doc)
+            print(d)
             if d['currentArmState'] == 'move':
                 atSomePointTheArmMoved = True
             elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
@@ -157,10 +139,13 @@ while runState:
                 atSomePointTheArmMoved = False
                 setArmGoalState(c, 'undump', 'close')
         elif armGoingToUndump:
+            print("arm going to undump")
+            # Note: undump is really undump - return ingredient - go to standby mode
             # Get current arm state (idle/plan/move)
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
             d = json.loads(doc)
+            print(d)
             if d['currentArmState'] == 'move':
                 atSomePointTheArmMoved = True
             elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
@@ -168,43 +153,18 @@ while runState:
                 armGoingToUndump = False
                 armGoingToReturnIngredient = True
                 atSomePointTheArmMoved = False
-                # set Kitchenator state to rehome / return home
-                setKState(c, 'rehome')
-    elif currentState == "rehome":
-        print("Rehome state")
-        if not armGoingToReturnIngredient:
-            setArmGoalState(c, 'go', 'close')
-            armGoingToReturnIngredient = True
-        elif not armGoingToReleaseIngredient:
-            # Get current arm state (idle/plan/move)
-            c.request('GET', '/getCurrentArmState')
-            doc = c.getresponse().read()
-            d = json.loads(doc)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
-                print('arm completed ingredient return')
-                atSomePointTheArmMoved = False
-                # set arm to release ingredient
-                setArmGoalState(c, 'go', 'open')
-                armGoingToReturnIngredient = True
-                
-        elif armGoingToReleaseIngredient:
-            # Get current arm state (idle/plan/move)
-            c.request('GET', '/getCurrentArmState')
-            doc = c.getresponse().read()
-            d = json.loads(doc)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
-                print('arm completed ingredient return')
-                atSomePointTheArmMoved = False
                 # set Kitchenator state to standby
-                setKState(c, 'standby')
-
-                # Set arm to move to standby position
-                setArmGoalState(c, 'go', 'open')
                 armReturningToStandbyConfiguration = True
+
+                # Set goal ingredient to "none"
+                print("mission accomplished!")
+                data = {}
+                data['goalIngredient'] = "none"
+                json_data = json.dumps(data)
+                c.request('POST', '/setGoalIngredient', json_data)
+                c.getresponse().read()
+
+                setKState(c, 'standby')
     else:
         print("INVALID SYSTEM STATE, setting to standby")
         setKState(c, 'standby')
