@@ -30,7 +30,7 @@ BLACK_ORANGE_SPACING_RATIO = 1.1
 BLACK_BLUE_SPACING_RATIO = 1.1
 BLACK_PURPLE_SPACING_RATIO = 1.1
 
-SLEEP_PER_LOOP = 1.0 / 20.0
+SLEEP_PER_LOOP = 1.0 / 25.0
 
 ENABLE_COMMS = True
 COMMS_LOOP_LIMIT = 1.0 / SLEEP_PER_LOOP;
@@ -43,11 +43,13 @@ origin_rot = 0
 green_x = -1
 green_y = -1
 green_rot = 0
+green_cycles_since_updated = 0
 
 orange_x = -1
 orange_y = -1
 orange_rot = 0
 orange_json = None
+orange_cycles_since_updated = 0
 
 dump_x = -1
 dump_y = -1
@@ -58,11 +60,13 @@ blue_x = -1
 blue_y = -1
 blue_rot = 0
 blue_json = None
+blue_cycles_since_updated = 0
 
 purple_x = -1
 purple_y = -1
 purple_rot = 0
 purple_json = None
+purple_cycles_since_updated = 0
 
 pixels_per_unit_length = -1
 
@@ -143,6 +147,8 @@ while True:
     (black, green) = find_pair(squares, "black", "green", BLACK_GREEN_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
     green_update = (green != None)
     if green_update:
+        green_cycles_since_updated = 0
+    
         squares.remove(black)
         squares.remove(green)
         
@@ -164,6 +170,8 @@ while True:
         
         # Yellow circle about the origin, signifying a live update.
         cv2.circle(edited_image, (origin_x, origin_y), 5, (0, 255, 255))
+    else:
+        green_cycles_since_updated = green_cycles_since_updated + 1
     
     # Gotta find the reference point first, or else the math breaks
     if pixels_per_unit_length < 0:
@@ -174,6 +182,8 @@ while True:
     (black, blue) = find_pair(squares, "black", "blue", BLACK_BLUE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
     blue_update = (blue != None)
     if blue_update:
+        blue_cycles_since_updated = 0
+        
         squares.remove(black)
         squares.remove(blue)
         
@@ -183,11 +193,15 @@ while True:
         
         # Surround squares together in blue rectangle.
         cv2.drawContours(edited_image, [bk_br], -1, (255, 0, 0), 2)
+    else:
+        blue_cycles_since_updated = blue_cycles_since_updated + 1
     
     # Detect black and orange pair.
     (black, orange) = find_pair(squares, "black", "orange", BLACK_ORANGE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
     orange_update = (orange != None)
     if orange_update:
+        orange_cycles_since_updated = 0
+        
         squares.remove(black)
         squares.remove(orange)
         
@@ -207,11 +221,15 @@ while True:
         
         # Yellow circle about the dump, signifying a live update.
         cv2.circle(edited_image, (dump_x, dump_y), 5, (0, 255, 255))
+    else:
+        orange_cycles_since_updated = orange_cycles_since_updated + 1
     
     # Detect black and purple pair.
     (black, purple) = find_pair(squares, "black", "purple", BLACK_PURPLE_SPACING_RATIO, PAIR_TOL, PAIR_ANGLE_TOL_DEG)
     purple_update = (purple != None)
     if purple_update:
+        purple_cycles_since_updated = 0
+        
         squares.remove(black)
         squares.remove(purple)
         
@@ -221,6 +239,8 @@ while True:
         
         # Surround squares together in purple rectangle.
         cv2.drawContours(edited_image, [bk_rd], -1, (150, 0, 150), 2)
+    else:
+        purple_cycles_since_updated = purple_cycles_since_updated + 1
     
     # Update lifetime status of current squares.
     for i in range(len(squares)-1, -1, -1):
@@ -316,16 +336,22 @@ while True:
         )
         cv2.putText(edited_image, purple_json, (purple_x + 5, purple_y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 0, 150), 2)
         
-    if ENABLE_COMMS and dump_json != None and blue_json != None and purple_json != None:
-        print 'counting until comms %02d / %02d' % (count_since_last_comms, COMMS_LOOP_LIMIT)
+    if dump_json != None and blue_json != None and purple_json != None:
+        print 'Time since updated (s)... green=%05.2f, orange=%05.2f, blue=%05.2f, purple=%05.2f' % (
+              (green_cycles_since_updated  + 1) * SLEEP_PER_LOOP,
+              (orange_cycles_since_updated + 1) * SLEEP_PER_LOOP,
+              (blue_cycles_since_updated   + 1) * SLEEP_PER_LOOP,
+              (purple_cycles_since_updated + 1) * SLEEP_PER_LOOP
+        )
         if count_since_last_comms < COMMS_LOOP_LIMIT:
             count_since_last_comms = count_since_last_comms + 1
         else:
             count_since_last_comms = 0
             full_json = '{%s, %s, %s}' % (dump_json, blue_json, purple_json)
             print ('Sending %s' % full_json)
-            client.request('POST', '/setColorPoses', full_json)
-            doc = client.getresponse().read()
+            if ENABLE_COMMS:
+                client.request('POST', '/setColorPoses', full_json)
+                doc = client.getresponse().read()
     
     # Label last known position of origin.
     if origin_x >= 0 and origin_y >= 0:
@@ -372,4 +398,7 @@ while True:
     cv2.imshow(IMAGE_WINDOW_NAME, edited_image)
     cv2.namedWindow(CONTROL_WINDOW_NAME)
 
+if ENABLE_COMMS:
+    client.close()
+    
 close_gui()

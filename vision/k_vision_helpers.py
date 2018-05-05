@@ -18,15 +18,15 @@ if HOME:
     FLIP_VALUE = -1
     
     COLORS = {
-        "black": ( 90, 120, 130),
+        "black": ( 30,  30,  30),
         "orange":(255, 150,  50),
-        "green": (180, 255, 110),
-        "blue":  ( 30, 200, 255),
-        "purple":(120,  90, 220),
+        "green": (100, 160, 100),
+        "blue":  ( 20, 110, 200),
+        "purple":( 80,  80, 180),
         "white": (255, 255, 255)
     }
     
-    DEFAULT_CAMERA = 0
+    DEFAULT_CAMERA = 1
     
 else: # LAB
 
@@ -253,7 +253,7 @@ def setup_gui():
     global CANNY_MAX_TRACKBAR_NAME
 
     cv2.namedWindow(CONTROL_WINDOW_NAME)
-    cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 0, 3, camera_selector_callback)
+    cv2.createTrackbar(CAMERA_SELECTOR_TRACKBAR_NAME, CONTROL_WINDOW_NAME, DEFAULT_CAMERA, 3, camera_selector_callback)
     cv2.createTrackbar(CANNY_MIN_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 120, 255, trackbar_callback)
     cv2.createTrackbar(CANNY_MAX_TRACKBAR_NAME, CONTROL_WINDOW_NAME, 180, 255, trackbar_callback)
     
