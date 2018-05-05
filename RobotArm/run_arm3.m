@@ -15,9 +15,10 @@ url_goals = [ip_address, 'getArmGoals'];
 url_poses = [ip_address, 'getAllPoses'];
 url_state = [ip_address, 'setCurrentArmState'];
 options = weboptions('RequestMethod', 'get');
+options_post = weboptions('RequestMethod', 'post');
 
 % minivie_path = 'C:\git\minivie';
-minivie_path = '/Users/yehby1/Documents/MATLAB/Human Robot Interaction/minivie';
+minivie_path = 'C:\Users\Nick\repos\minivie';
 
 %% Initialization
 % Load robotics toolbox model & initial poses
@@ -83,7 +84,7 @@ while (1)
     if (use_connection) 
         % Send current state information       
         state_msg = jsonencode(containers.Map({'state','location'},{robot.state, robot.location}));
-        response = webwrite(url_state, state_msg, options);
+        response = webwrite(url_state, state_msg, options_post);
         
         % Get positions
         data = webread(url_poses, options);
@@ -116,7 +117,7 @@ while (1)
         
         if (use_connection)
             state_msg = jsonencode(containers.Map({'state','location'},{robot.state, robot.location}));
-            response = webwrite(url_state, state_msg, options);
+            response = webwrite(url_state, state_msg, options_post);
         end
         if (~trajectories_computed)
             disp('Computing trajectories...');
@@ -134,9 +135,9 @@ while (1)
             robot.mode = 'stop';
             % keep updating gripper
             robot.move(robot.q_current, goal_msg.gripperState);
-        elseif (strcmp(goal_msg.armGoalState,'go') && strcmp(robot.mode, 'idle'))
+        elseif (strcmp(goal_msg.armGoalState,'go') && strcmp(robot.state, 'idle'))
             robot.mode = 'go';
-            q = pose_manager.get_trajectory(goal_msg.color);
+            q = pose_manager.get_trajectory(goal_msg.armGoalColor);
             if (strcmp(goal_msg.armGoalState,'go'))
                robot.idx = 1;
                robot.location = 'landingpad';

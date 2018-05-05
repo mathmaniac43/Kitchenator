@@ -76,6 +76,7 @@ while runState:
         if d['goalIngredient'] != 'none':
             print('Standby state, changing to \'grab\' for new ingredient...')
             setKState(c, 'grab')
+            currentGesture = 0
         else:
             print('Standby state, no goal ingredient')
     elif currentState == "grab":
@@ -91,14 +92,18 @@ while runState:
             doc = c.getresponse().read()
             d = json.loads(doc)
             if d['armLocation'] == 'landingpad':
-                setKState(c, 'deliver')
-                armGoingToPickupIngredient = False
-                continue
+                if currentGesture == 1:
+                    setKState(c, 'deliver')
+                    currentGesture = 0
+                    armGoingToPickupIngredient = False
+                    continue
+                else:
+                    print("Awaiting gesture before proceeding to bowl...")
     elif currentState == "deliver":
         print("Deliver State")
         if not armGoingToDeliver and not armGoingToDump and not armGoingToUndump:
             # Direct arm to pick up the goal ingredient
-            setArmGoalState(c, 'go', 'close')
+            setArmGoalState(c, 'dump', 'close')
             armGoingToDeliver = True
         elif armGoingToDeliver and not armGoingToDump and not armGoingToUndump:
             # Get current arm state (idle/plan/move)
@@ -151,11 +156,13 @@ while runState:
                 c.getresponse().read()
 
                 setKState(c, 'standby')
+                currentGesture = 0
             else:
                 print("Arm is returning ingredient, returning to standby")
     else:
         print("INVALID SYSTEM STATE, setting to standby")
         setKState(c, 'standby')
+        currentGesture = 0
 
 
     time.sleep(delayTime - ((time.time() - starttime) % delayTime))
