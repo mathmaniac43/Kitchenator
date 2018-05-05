@@ -2,8 +2,7 @@ url = 'http://127.0.0.1:12345/setGestureState';
 options = weboptions('RequestMethod', 'post'); 
 hMyo = Inputs.MyoUdp.getInstance();
 hMyo.initialize();
-preValue = zeros(10,1);
-
+preValue = zeros(5,1);
 while(1)
 
     emgData2 = hMyo.getData;
@@ -146,15 +145,15 @@ while(1)
     plot(emgData2(:,26),emgData2(:,25))
 
     value = sum(emgData2(:,25))/1000
-    preValue(1:end-1,1) = preValue(2:end,1)
-    preValue(end,1) = value;
-    
-    if value > 125
+
+
+    if value > 150
         %gesture is STOP
         gesture = 2
-    elseif min(preValue > 25) && min(preValue < 70)
+    elseif (value > 30) && (value < 60)
         %gesture is GO
         gesture = 1
+    
     else
         %no valid gesture
         gesture = 0
@@ -164,6 +163,6 @@ while(1)
     %response = webwrite(url, num2str(gesture), options);
     
         
-    pause(0.05)
+    pause(0.1)
 
 end

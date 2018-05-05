@@ -3,8 +3,9 @@ options = weboptions('RequestMethod', 'post');
 hMyo = Inputs.MyoUdp.getInstance();
 hMyo.initialize();
 preValue = zeros(10,1);
-
-while(1)
+gestureArray = zeros(200,1)
+tic
+for k=1:200
 
     emgData2 = hMyo.getData;
     emgData2 = hMyo.getData;
@@ -159,6 +160,7 @@ while(1)
         %no valid gesture
         gesture = 0
     end
+    gestureArray(k,1) = gesture;
     %jsonencode({'gesture',gesture})
     
     %response = webwrite(url, num2str(gesture), options);
@@ -167,3 +169,4 @@ while(1)
     pause(0.05)
 
 end
+toc
