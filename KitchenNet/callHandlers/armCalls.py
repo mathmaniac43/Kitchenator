@@ -14,6 +14,12 @@ def getArmGoals():
     if states.colorPoses and not states.goalIngredient == 'none':
         if states.armGoalState == 'deliver' or states.armGoalState == 'dump' or states.armGoalState == 'undump':
             data['armGoalPose'] = states.colorPoses["orange"]
+        elif states.kitchenatorState == states.KSTATE.rehome:
+            print('TODO: What is the color of home?')
+            # TODO data['armGoalPose'] = states.colorPoses["$HOMECOLOR"]
+        elif states.kitchenatorState == states.KSTATE.standby:
+            print('TODO: Get standby pose for arm')
+            # TODO data['armGoalPose'] = {standby pose}
         else:
             data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
     else:
