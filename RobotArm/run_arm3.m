@@ -3,7 +3,7 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 0;     % set to 1 to connect to kitchenNET server
+use_connection = 1;     % set to 1 to connect to kitchenNET server
 use_virtual = 0;
 use_robot = 0;          % set to 1 to connect to Cyton viewer
 
