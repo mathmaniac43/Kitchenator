@@ -6,6 +6,15 @@ from . import states
 '''
     All arm related calls, getting the arm states in bottleService.py
 '''
+@get('/getAllPoses')
+def getAllPoses():
+    data = {}
+    if states.colorPoses:
+        for p in states.colorPoses:
+            data[p] = states.colorPoses[p]
+    json_data = json.dumps(data)
+    return json_data
+    
 @get('/getArmGoals')
 def getArmGoals():
     data = {}
@@ -13,15 +22,15 @@ def getArmGoals():
     data['gripperState'] = states.gripperState
     if states.colorPoses and not states.goalIngredient == 'none':
         if states.armGoalState == 'deliver' or states.armGoalState == 'dump' or states.armGoalState == 'undump':
-            data['armGoalPose'] = states.colorPoses["orange"]
+            data['armGoalColor'] = "orange"
         elif states.kitchenatorState == states.KSTATE.rehome:
             print('TODO: What is the color of home?')
             # TODO data['armGoalPose'] = states.colorPoses["$HOMECOLOR"]
         elif states.kitchenatorState == states.KSTATE.standby:
-            print('TODO: Get standby pose for arm')
+            print('TODO: Get standby color for arm')
             # TODO data['armGoalPose'] = {standby pose}
         else:
-            data['armGoalPose'] = states.colorPoses[states.ingredientColorMap[states.goalIngredient]]
+            data['armGoalPose'] = states.ingredientColorMap[states.goalIngredient]
     else:
         data['armGoalPose'] = ""
         

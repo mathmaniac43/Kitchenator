@@ -56,3 +56,29 @@ In another terminal, run:
 > python theClients/voiceClient.py
 
 This script will set the goal ingredient to 'nutmeg' or 'ketamine' when you press any key. Pygame is a little glitchy, so it stops taking key inputs when you click outside of the terminal in which voiceClient.py is running.
+
+
+### States that the arm client can receive:
+#### Color Poses from GET /getAllPoses
+
+{
+    {"purple": 
+        {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}
+    },
+    {"orange": 
+        {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}
+    },
+    {"blue": 
+        {'x': 0, 'y': 0, 'z': 0, 'yaw': 0}
+    }
+}
+
+#### Arm Goal States from GET /getArmGoals
+
+{
+    {"armGoalState": "go"/"stop"/"dump"/"undump" },
+    {"gripperState": "open"/"close"/"same"},
+    {"armGoalColor":
+    "purple"/"orange"/"blue"}
+}
+
