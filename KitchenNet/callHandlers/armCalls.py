@@ -38,6 +38,7 @@ def getArmGoals():
 def getCurrentArmState():
     data = {}
     data['currentArmState'] = states.currentArmState
+    data['armLocation'] = states.armLocation
     json_data = json.dumps(data)
     return json_data
 
@@ -45,5 +46,6 @@ def getCurrentArmState():
 def setCurrentArmState():
     req_obj = json.loads(request.body.read())
     states.currentArmState = req_obj["state"]
+    states.armLocation = req_obj["location"]
     print('Current Arm State:  {}'.format(states.currentArmState))
     

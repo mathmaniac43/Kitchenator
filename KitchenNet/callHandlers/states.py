@@ -27,6 +27,9 @@ def init():
     global gripperState
     gripperState = "open" # out of 'open', 'close', 'same'
 
+    global armLocation
+    armLocation = "standby" # out of 'standby', 'landingpad', bowl', 'dump_bowl'
+
     '''
     Vision-related states
     '''    

@@ -19,7 +19,6 @@ armGoingToPickupIngredient = False
 armGoingToDeliver = False
 armGoingToDump = False
 armGoingToUndump = False
-atSomePointTheArmMoved = False 
 armGoingToReturnIngredient = False
 armGoingToReleaseIngredient = False
 armReturningToStandbyConfiguration = False
@@ -87,19 +86,12 @@ while runState:
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
             d = json.loads(doc)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
-                # Gripper should be closed on cup handle now,
-                # set Kitchenator state to deliver
+            if d['armLocation'] == 'landingpad':
                 setKState(c, 'deliver')
-                atSomePointTheArmMoved = False
                 armGoingToPickupIngredient = False
                 continue
-
     elif currentState == "deliver":
         print("Deliver State")
-        print("armgoingToUndump=" + str(armGoingToUndump))
         if not armGoingToDeliver and not armGoingToDump and not armGoingToUndump:
             # Direct arm to pick up the goal ingredient
             setArmGoalState(c, 'go', 'close')
@@ -109,15 +101,11 @@ while runState:
             c.request('GET', '/getCurrentArmState')
             doc = c.getresponse().read()
             d = json.loads(doc)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
+            if d['armLocation'] == 'bowl':
                 # Arm should be at bowl now, check gesture 
                 if currentGesture == 1:
                     # set arm goal to dump
-                    atSomePointTheArmMoved = False
                     setArmGoalState(c, 'dump', 'close')
-
                     armGoingToDump = True
                     armGoingToDeliver = False
                     continue
@@ -130,13 +118,10 @@ while runState:
             doc = c.getresponse().read()
             d = json.loads(doc)
             print(d)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
+            if d['armLocation'] == 'bowl_dump':
                 print('arm completed dump')
                 armGoingToDump = False
                 armGoingToUndump = True
-                atSomePointTheArmMoved = False
                 setArmGoalState(c, 'undump', 'close')
         elif armGoingToUndump:
             print("arm going to undump")
@@ -146,13 +131,10 @@ while runState:
             doc = c.getresponse().read()
             d = json.loads(doc)
             print(d)
-            if d['currentArmState'] == 'move':
-                atSomePointTheArmMoved = True
-            elif d['currentArmState'] == 'idle' and atSomePointTheArmMoved:
+            if d['armLocation'] == 'standby':
                 print('arm completed un-dump')
                 armGoingToUndump = False
                 armGoingToReturnIngredient = True
-                atSomePointTheArmMoved = False
                 # set Kitchenator state to standby
                 armReturningToStandbyConfiguration = True
 
@@ -165,6 +147,8 @@ while runState:
                 c.getresponse().read()
 
                 setKState(c, 'standby')
+            else:
+                print("Arm is returning ingredient, returning to standby")
     else:
         print("INVALID SYSTEM STATE, setting to standby")
         setKState(c, 'standby')
