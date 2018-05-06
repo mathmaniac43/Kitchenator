@@ -1,6 +1,7 @@
 % For the voice client
 
 url = 'http://127.0.0.1:12345/setGoalIngredient';
+%url = 'http://192.168.0.10:12345/setGoalIngredient';
 options = weboptions('RequestMethod', 'post'); % could also be 'post'
 
 nutmeg=audioread('nutmeg.wav');
@@ -48,13 +49,13 @@ while true
     maxCin = max(checkCin)
 
     if (maxNut < 50) && (maxCin < 50)
-        ingredient = 'invalid'
+        ingredient = '"invalid"'
     elseif maxNut > maxCin
         %Ingredient is nutmeg
-        ingredient = 'nutmeg'
+        ingredient = '"nutmeg"'
     else
         %Ingredient is flour
-        ingredient = 'flour'
+        ingredient = '"flour"'
     end
     stringredient = num2str(ingredient)
     clf
