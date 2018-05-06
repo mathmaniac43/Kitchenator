@@ -7,9 +7,12 @@ classdef KitchenatorArm < handle
         closed_gripper = .0033; % in m
         udp
         sim_robot
-        mode
-        state
-        location
+        
+        current_state
+        target_state
+        target_color
+        stopgo
+        
         T_goal
         T_approach
         q_goal
@@ -39,7 +42,7 @@ classdef KitchenatorArm < handle
             %   [in] sim_robot : robotics toolbox cytonE1500 model
             obj.udp = udp;
             obj.sim_robot = sim_robot;
-            obj.state = 'idle';
+            obj.current_state = 'standby';
         end
         
         function move(obj,joints,gripper_pos)

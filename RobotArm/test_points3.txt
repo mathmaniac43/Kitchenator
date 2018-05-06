@@ -1,3 +1,8 @@
-{"gripperState" : "close", "armGoalState" : "go", "color" : "blue"}
-{"gripperState" : "close", "armGoalState" : "go", "color" : "orange"}
-{"gripperState" : "close", "armGoalState" : "go", "color" : "purple"}
+{"targetState": "standby", "color":"blue", "stopGoState":"go"}
+{"targetState": "planning", "color":"blue", "stopGoState":"go"}
+{"targetState": "grab", "color":"blue", "stopGoState":"go"}
+{"targetState": "pre_dump", "color":"blue", "stopGoState":"go"}
+{"targetState": "dump", "color":"blue", "stopGoState":"go"}
+{"targetState": "standby", "color":"blue", "stopGoState":"go"}
+{"targetState": "planning", "color":"blue", "stopGoState":"go"}
+{"targetState": "grab", "color":"purple", "stopGoState":"go"}

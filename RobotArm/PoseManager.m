@@ -57,13 +57,16 @@ classdef PoseManager < handle
         end
         
         function [q] = get_trajectory(obj, name)
+            q = [];
             if strcmp(name, 'orange')
-                name = obj.last_color;
+                name_local = obj.last_color;
+            else
+                name_local = name;
             end
-            if strcmp(name,'purple')
+            if strcmp(name_local,'purple')
                 q = obj.purple_traj;
                 obj.last_color = 'purple';
-            elseif strcmp(name,'blue')
+            elseif strcmp(name_local,'blue')
                 q = obj.blue_traj;
                 obj.last_color = 'blue';
             end
@@ -76,22 +79,28 @@ classdef PoseManager < handle
         
         function [q] = compute_trajectory(obj, color, robot)
             [T,Ta] = obj.get_pose(color);
-if (0)
-            neutral2approach = ctraj(robot.T_neutral, Ta, obj.N_steps);
+            q1 = [];
+            q2 = [];
+            q3 = [];
+            q12 = [];
+       
+ if (0)
+            standby2approach = ctraj(robot.T_neutral, Ta, obj.N_steps);
             [q0,n,T0] = get_best_guess(Ta.t);
-            q1a = robot.sim_robot.ikcon(neutral2approach,'q0', q0);
+            q1a = robot.sim_robot.ikcon(standby2approach,'q0', q0);
 
-            approach2goal = ctraj(Ta, T, obj.N_steps);
+            approach2grab = ctraj(Ta, T, obj.N_steps);
             [q0,n,T0] = get_best_guess(T.t);
-            q1b = robot.sim_robot.ikcon(approach2goal, 'q0', q0);
+            q1b = robot.sim_robot.ikcon(approach2grab, 'q0', q0);
             if (~isempty(q1b))
                 q1ab = jtraj(q1a(end,:),q1b(1,:), obj.N_steps);
             else
                 q1ab = [];
             end
+            
             q1 = [q1a; q1ab; q1b];
 
-            goal2bowl = robot.sim_robot.ctraj(T, obj.T_bowl, obj.N_steps);
+            goal2predump = robot.sim_robot.ctraj(T, obj.T_bowl, obj.N_steps);
             [q0,n,T0] = get_best_guess(obj.T_bowl.t);
             q2 = robot.sim_robot.ikcon(goal2bowl,q0);
 
@@ -100,18 +109,24 @@ if (0)
             q3 = jtraj(q2(end,:),q_dump,10);
             
             q12 = jtraj(q1(end,:), q2(1,:),10);
-end            
-%             q = cell(1,4);
-%             % Go to landingpad
-%             q{1} = q1;
-%             % Go to bowl
-%             q{2} = [q12;q2];
-%             % Dump bowl
-%             q{3} = q3;
-%             % Undump & standby
-%             q{4} = [flipud(q{3}); flipud(q{2}); flipud(q{1})];
-            q = {zeros(1,7), zeros(1,7), zeros(1,7), zeros(1,7)};
+ end            
+            if (isempty(q1))
+                q1 = zeros(1,7);
+            elseif (isempty(q2))
+                q2 = zeros(1,7);
+            elseif (isempty(q3))
+                q3 = zeros(1,7);
+            end
             
+            q = cell(1,4);
+            % Go to landingpad
+            q{1} = q1;
+            % Go to bowl
+            q{2} = [q12;q2];
+            % Dump bowl
+            q{3} = q3;
+            % Undump & standby
+            q{4} = [flipud(q{3}); flipud(q{2}); flipud(q{1})];
         end
     end
 end
