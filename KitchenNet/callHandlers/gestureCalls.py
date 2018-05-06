@@ -6,16 +6,20 @@ from . import states
 '''
     All gesture related calls, updating the 'gesture' state in bottleService.py
 '''
-@post('/setGestureState')
-def setGestureState():
-    req_obj = json.loads(request.body.read())
-    print(req_obj)
-    states.gesture = req_obj
-    return 'gesture set to {}!'.format(states.gesture)
+@post('/setGesture')
+def setGesture():
+    states.gesture = json.loads(request.body.read())
+    return 'cool'
 
-@get('/getGestureState')
-def getGestureState():
-    data = {}
-    data['gesture'] = states.gesture
-    jData = json.dumps(data)
-    return jData
+@get('/getGesture')
+def getGesture():
+    return str(states.gesture)
+
+@get('/getWaiting')
+def getWaiting():
+    return json.dumps(str(states.waitingToContinue))
+
+@post('/setWaiting')
+def setWaiting():
+    states.waitingToContinue = json.loads(request.body.read())
+    return 'cool'

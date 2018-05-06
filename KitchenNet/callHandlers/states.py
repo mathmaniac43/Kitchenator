@@ -1,6 +1,6 @@
 from enum import Enum
 
-WORKING = False
+WORKING = True
 
 if WORKING:
     KSTATE = Enum('standby', 'grab', 'deliver', 'rehome')
@@ -15,26 +15,24 @@ def init():
     kitchenatorState = KSTATE.standby
 
     ''' Arm State '''
-    global armGoalState
-    armGoalState = 'stop' # out of 'stop', 'go', 'dump', 'undump'
-
-    global currentArmState
-    currentArmState = 'idle' # out of 'idle', 'plan', 'move'
-
-    global armGoalPose 
-    armGoalPose = [0, 0, 0, 0] # x,y,pitch, yaw?
-
-    global gripperState
-    gripperState = "open" # out of 'open', 'close', 'same'
-
-    global armLocation
-    armLocation = "standby" # out of 'standby', 'landingpad', bowl', 'dump_bowl'
+    
+    global armTargetState
+    armTargetState = "standby"
+    
+    global armCurrentState
+    armCurrentState = "standby"
+    
+    global armStopGo
+    armStopGo = "go"
+    
+    global waitingToContinue
+    waitingToContinue = 'False'
 
     '''
     Vision-related states
     '''    
     global ingredientColorMap
-    ingredientColorMap = {'nutmeg': 'blue', 'flour': 'purple'}
+    ingredientColorMap = {'nutmeg': 'blue', 'flour': 'purple', '':'', 'invalid':''}
 
     global colorPoses
     colorPoses = None
@@ -46,4 +44,4 @@ def init():
 
     ''' Goal Ingredient '''
     global goalIngredient
-    goalIngredient = 'none'
+    goalIngredient = ''

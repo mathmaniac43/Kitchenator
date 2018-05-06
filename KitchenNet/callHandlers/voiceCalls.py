@@ -8,7 +8,4 @@ from . import states
 '''
 @post('/setGoalIngredient')
 def setGoalIngredient():
-    states.goalIngredient = request.body.read()
-    print("K I T C H E N A T O R activate!")
-    return 'goal ingredient set to {}!'.format(states.goalIngredient)
-    
+    states.goalIngredient = json.loads(request.body.read())
