@@ -1,5 +1,8 @@
-url = 'http://127.0.0.1:12345/setGestureState';
+url = 'http://127.0.0.1:12345/setGesture';
+%url = 'http://192.168.0.10:12345/setGesture';
+
 options = weboptions('RequestMethod', 'post'); 
+options.Timeout = 100;
 hMyo = Inputs.MyoUdp.getInstance();
 hMyo.initialize();
 preValue = zeros(10,1);
@@ -152,7 +155,9 @@ while(1)
     if value > 125
         %gesture is STOP
         gesture = 2
-    elseif min(preValue > 25) && min(preValue < 70)
+    %elseif min(preValue > 25) && min(preValue < 70)
+    elseif min(preValue > 10) && min(preValue < 70)
+
         %gesture is GO
         gesture = 1
     else
@@ -164,6 +169,6 @@ while(1)
     response = webwrite(url, num2str(gesture), options);
     
         
-    pause(0.05)
-
+    %pause(0.05)
+    pause(1)
 end
