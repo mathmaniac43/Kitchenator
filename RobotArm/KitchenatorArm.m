@@ -73,7 +73,7 @@ classdef KitchenatorArm < handle
             %SIM Plots robot toolbox model for given joint
             %   [in] joints : joint angles in radians
             figure(1);
-            obj.sim_robot.plot(joints);
+            obj.sim_robot.plot(joints(1:7));
         end
         
         function stop(obj)
@@ -101,7 +101,8 @@ classdef KitchenatorArm < handle
                obj.q_next = obj.q_traj(obj.t_step,:);
                done = 0;
             end
-            obj.T_current = obj.sim_robot.fkine(obj.q_current);
+            obj.T_current = obj.sim_robot.fkine(obj.q_current(1:7));
+            
         end
         
         function [reached, qdiff] = measure(obj)
@@ -120,7 +121,7 @@ classdef KitchenatorArm < handle
                 qdiff = [];
                 reached = 0;
             else
-                qdiff = obj.q_next - obj.q_measured(1:7);
+                qdiff = obj.q_next(1:7) - obj.q_measured(1:7);
                 reached = norm(qdiff) < obj.q_tol;
             end
         end

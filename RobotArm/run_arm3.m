@@ -3,7 +3,7 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 1;     % set to 1 to connect to kitchenNET server
+use_connection = 0;     % set to 1 to connect to kitchenNET server
 use_virtual = 0;
 use_robot = 0;          % set to 1 to connect to Cyton viewer
 
@@ -82,8 +82,9 @@ end
 
 while (1)
 
-    % Clear out goal info
+    % Clear out old messages
     goal_msg = '';
+    pose_msg = '';
     
     % Check for new goalpoints from server
     if (use_connection) 
@@ -100,16 +101,17 @@ while (1)
     
     % Test with other points
     else
-        disp(robot.current_state);
-        goal_raw = fgetl(fid);
-        pose_raw = fgetl(fid_poses);
-        % Poses from file
-        if (pose_raw ~= -1)
-            pose_msg = jsondecode(pose_raw);
-        end
-        % Points from file
-        if (goal_raw ~= -1)
-            goal_msg = jsondecode(goal_raw);
+        if (strcmp(robot.current_state, robot.target_state))
+            goal_raw = fgetl(fid);
+            pose_raw = fgetl(fid_poses);
+            % Poses from file
+            if (pose_raw ~= -1)
+                pose_msg = jsondecode(pose_raw);
+            end
+            % Points from file
+            if (goal_raw ~= -1)
+                goal_msg = jsondecode(goal_raw);
+            end
         end
     end
     
@@ -126,96 +128,88 @@ while (1)
     end
     
     % 
-    if strcmp(robot.target_state,'standby')
+    if (strcmp(robot.target_state,'standby') && strcmp(robot.current_state,'standby'))
         disp('Standby...');
     elseif strcmp(robot.target_state,'planning')
         disp('Planning...');
         if ~isempty(robot.target_color)
-            if strcmp(robot.target_color, 'blue')
-                pose_manager.blue_traj = pose_manager.compute_trajectory(robot.target_color);
-                disp('Finished computing trajectory to blue.');
-                robot.current_state = 'planning';
-            elseif strcmp(robot.target_color, 'purple')
-                pose_manager.purple_traj = pose_manager.compute_trajectory(robot.target_color);
-                disp('Finished computing trajectory to blue.');
-                robot.current_state = 'planning';
-            end
+            pose_manager.compute_trajectory(robot);
+            disp(['Finished computing trajectory to ',robot.target_color]);
+            robot.current_state = 'planning';
         else
             disp('Waiting on color goal...');
         end
+        robot.t_step = 1;
     else
         % Get current trajectory
         q = pose_manager.get_trajectory(robot.target_color);
         
         if strcmp(robot.target_state,'grab')
-            q_idx = 1;
+            robot.idx = 1;
         elseif strcmp(robot.target_state,'pre_dump')
-            q_idx = 2;
+            robot.idx = 2;
         elseif strcmp(robot.target_state,'dump')
-            q_idx = 3;
+            robot.idx = 3;
+        elseif strcmp(robot.target_state,'standby')
+            robot.idx = 4;
         else
             warning(['Unknown state ', robot.target_state]);
         end
         
         if (~isempty(q))
             % Pick appropriate segment
-            robot.q_traj = q{q_idx};
-        else
-            robot.q_traj = zeros(1,7);
-        end
-        robot.t_step = 1;
-    end
-    
-    if strcmp(robot.stopgo, 'go')
-        % MOVE ARM
-        [done, qdiff] = robot.update();
-        if (test_count > 20) || strcmp(robot.target_state,'planning')
-            done = 1;
-        else
-            done = 0;
-            test_count = test_count+1
-        end
-        if (done)
-            test_count = 0;
-            % Update gripper position without moving
-            robot.move(robot.q_current, robot.gripper_goal);
-            disp('Completed trajectory');
-            qdiff
-            robot.q_current
-            robot.T_current
-            tr2rpy(robot.T_current)
-            if (~strcmp(robot.target_state, 'planning'))
-                robot.current_state = robot.target_state;
-            end
-        elseif isempty(robot.q_next)
-            warning('Empty trajectory');
-        else
-            % check if next move exists
-            if (sum(robot.q_next >= cyton.qlim(:,1)') ~= 7)
-                disp('commanded joint out of min range')
-            elseif (sum(robot.q_next <= cyton.qlim(:,2)') ~= 7)
-                disp('commanded joint out of max range')
-            else
-                % valid command
-                if (use_robot)
-                    disp('sent joints')
-                    robot.move(robot.q_next, robot.gripper_current);
-                    disp(robot.gripper_current);
-                else
-                    robot.sim(robot.q_next);
-                end
-            end
+            robot.q_traj = q{robot.idx};
         end
         
-    else
-        % STOP!!!!
-        warning('Stopping!!!');
-        test_count = 0;
+        if strcmp(robot.stopgo, 'go')
+            % MOVE ARM
+            [done, qdiff] = robot.update();
+    %         if (test_count > 20) || strcmp(robot.target_state,'planning')
+    %             done = 1;
+    %         else
+    %             done = 0;
+    %             test_count = test_count+1
+    %         end
+            if (done)
+                test_count = 0;
+                % Update gripper position without moving
+                robot.move(robot.q_current(1:7), robot.q_current(8));
+                disp('Completed trajectory');
+                qdiff
+                robot.q_current
+                robot.T_current
+                tr2rpy(robot.T_current)
+                robot.t_step = 1;
+                if (~strcmp(robot.target_state, 'planning'))
+                    robot.current_state = robot.target_state;
+                end
+            elseif isempty(robot.q_next)
+                warning('Empty trajectory');
+            else
+                % check if next move exists
+                if (sum(robot.q_next(1:7) >= cyton.qlim(:,1)') ~= 7)
+                    disp('commanded joint out of min range')
+                elseif (sum(robot.q_next(1:7) <= cyton.qlim(:,2)') ~= 7)
+                    disp('commanded joint out of max range')
+                else
+                    % valid command
+                    if (use_robot)
+                        disp('sent joints')
+                        robot.move(robot.q_next(1:7), robot.q_next(1:7));
+                        disp(robot.gripper_current);
+                    else
+                        robot.sim(robot.q_next);
+                    end
+                end
+            end
+
+        else
+            % STOP!!!!
+            warning('Stopping!!!');
+            test_count = 0;
+        end
     end
-    
     disp(['Target state: ', robot.target_state])
     disp(['Target color: ', robot.target_color])
     disp(['Current state: ', robot.current_state])
-    
-    pause(1);
 end

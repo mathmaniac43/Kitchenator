@@ -4,7 +4,7 @@ mdl_cyton
 %ready_pose = rad2deg([0 -.7 0 -.7 0 -.7 0]);
 %zero_pose = [0 0 0 0 0 0 0];
 
-neutral_pose = [90   0  -50   0  -22    0    0];
+neutral_pose = [90   0  -50   0  -22    0    180];
 
 %%
 % FOR LEFT INGREDIENT (according to robot's perspective)
