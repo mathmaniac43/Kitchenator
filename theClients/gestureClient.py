@@ -21,7 +21,7 @@ while gestRun:
     data = {}
     data['gesture'] = gesture;
     json_data = json.dumps(data)
-    c.request('POST', '/setGestureState', json_data)
+    c.request('POST', '/setGesture', json_data)
     doc = c.getresponse().read()
     print doc
     time.sleep(delayTime - ((time.time() - starttime) % delayTime))
