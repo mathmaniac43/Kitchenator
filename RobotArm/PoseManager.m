@@ -107,9 +107,10 @@ classdef PoseManager < handle
 %             q1b = robot.sim_robot.jtraj(Ta,T,obj.N_steps);
             
             if (~isempty(q1b))
-                T1a = bot.sim_robot.fkine(q1a(end,:));
-                T1b = bot.sim_robot.fkine(q1b(1,:));
-                q1ab = bot.sim_robot.jtraj(T1a,T1b, 5,'q0',q0);
+%                 T1a = bot.sim_robot.fkine(q1a(end,:));
+%                 T1b = bot.sim_robot.fkine(q1b(1,:));
+%                 q1ab = bot.sim_robot.jtraj(T1a,T1b, 5,'q0',q0);
+                q1ab = jtraj(q1a(end,:),q1b(1,:), 5,'q0',q0);
             else
                 q1ab = [];
             end

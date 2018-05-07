@@ -43,5 +43,5 @@ def getMode():
 @post('/setArmGoalState')
 def setArmGoalState():
     req_obj = json.loads(request.body.read())
-    states.armGoalState = req_obj["armGoalState"]
+    # states.armGoalState = req_obj["armGoalState"]
     states.gripperState = req_obj["gripperState"]

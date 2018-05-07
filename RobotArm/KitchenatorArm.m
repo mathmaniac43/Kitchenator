@@ -3,7 +3,7 @@ classdef KitchenatorArm < handle
     %   Detailed explanation goes here
     
     properties
-        open_gripper = .007; % in m
+        open_gripper = .008; % in m
         closed_gripper = .0033; % in m
         udp
         sim_robot

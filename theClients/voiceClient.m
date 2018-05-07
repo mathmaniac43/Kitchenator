@@ -1,6 +1,6 @@
 % For the voice client
 
-url = 'http://127.0.0.1:12345/setGoalIngredient';
+url = 'http://127.0.0.1:12346/setGoalIngredient';
 %url = 'http://192.168.0.10:12345/setGoalIngredient';
 options = weboptions('RequestMethod', 'post'); % could also be 'post'
 

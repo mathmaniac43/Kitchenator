@@ -12,8 +12,8 @@ trajectories_computed = 0;
 test_count = 0;
 
 %% Configuration
-% ip_address = 'http://192.168.0.10:12345/';
-ip_address = 'http://127.0.0.1:12345/';
+% ip_address = 'http://192.168.0.10:1234/';
+ip_address = 'http://127.0.0.1:12346/';
 url_goals = [ip_address, 'getArmCurrentStatus'];
 url_poses = [ip_address, 'getAllPoses'];
 url_state = [ip_address, 'setArmCurrentState'];
@@ -128,6 +128,7 @@ while (1)
         robot.stopgo = goal_msg.stopgo;
     end
     
+    robot.target_state = 'planning';
     % 
     if (strcmp(robot.target_state,'standby') && strcmp(robot.current_state,'standby'))
         disp('Standby...');
@@ -213,4 +214,5 @@ while (1)
     disp(['Target state: ', robot.target_state])
     disp(['Target color: ', robot.target_color])
     disp(['Current state: ', robot.current_state])
+    pause(0.5);
 end

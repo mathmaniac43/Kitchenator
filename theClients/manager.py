@@ -11,7 +11,7 @@ For further information, find the state diagram for the Kitchenator
 delayTime = 1.0
 
 starttime = time.time()
-client = httplib.HTTPConnection('127.0.0.1', 12345)
+client = httplib.HTTPConnection('127.0.0.1', 12346)
 
     
 def post(client, endpoint, value):
@@ -83,9 +83,11 @@ while True:
             post(client, 'setArmTargetState', 'standby')
             post(client, 'setGoalIngredient', 'invalid')
             
+        if targetState == 'grab' or targetState == 'pre_dump':
+            post(client, 'setWaiting', 'True')
+            
     else: # manager is waiting for arm to catch up to target.
     
         print 'Waiting for arm to proceed.'
         
-        if targetState == 'grab' or targetState == 'pre_dump':
-            post(client, 'setWaiting', 'True')
+

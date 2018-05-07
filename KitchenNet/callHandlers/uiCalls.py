@@ -49,8 +49,9 @@ def serveUIDebug():
 				Goal Ingredient: '{}' <br />
 				<h3> Arm </h3>
 				Current Arm State: '{}' <br />
-				Arm Location: '{}' <br />
-				Arm Goal State: '{}' <br />
+				Arm Target State: '{}' <br />
+				Arm Stop/Go: '{}' <br />
+				Waiting to Continue: '{}' <br />
 				<h3> Gesture </h3>
 				{} <br />
 				<h3> Colors & Poses </h3>
@@ -62,7 +63,7 @@ def serveUIDebug():
 				states.armCurrentState,
 				states.armTargetState,
                 states.armStopGo,
-				states.armGoalState,
+				states.waitingToContinue,
 				states.gesture,
 				states.colorPoses
 				)

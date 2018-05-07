@@ -78,7 +78,7 @@ setup_gui()
 
 if ENABLE_COMMS:
     print "Enabling comms"
-    client = httplib.HTTPConnection('127.0.0.1', 12345)
+    client = httplib.HTTPConnection('127.0.0.1', 12346)
 
 while True:
     time.sleep(SLEEP_PER_LOOP)
