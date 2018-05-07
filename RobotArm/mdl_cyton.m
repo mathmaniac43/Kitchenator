@@ -44,7 +44,7 @@ links(6).qlim = [-2.00 2.00];
 links(7).qlim = [-2.96 2.96];
 
 cyton.base = transl(0.0, 0.0, 0.0)*rpy2tr(0, 0, 0, 'xyz');
-cyton.tool = transl(0,0,0)*rpy2tr(-pi/2,0,0);
+cyton.tool = transl(0,0,0)*rpy2tr(-90,0,0);
 
 % define the workspace vectors:
 %   qz         zero joint angle configuration

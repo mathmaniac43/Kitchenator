@@ -59,8 +59,9 @@ def serveUIDebug():
 			<p>
 			</div>""".format(kstate,
 				states.goalIngredient,
-				states.currentArmState,
-				states.armLocation,
+				states.armCurrentState,
+				states.armTargetState,
+                states.armStopGo,
 				states.armGoalState,
 				states.gesture,
 				states.colorPoses

@@ -11,7 +11,7 @@ For further information, find the state diagram for the Kitchenator
 delayTime = 1.0
 
 starttime = time.time()
-client = httplib.HTTPConnection('192.168.0.10', 12345)
+client = httplib.HTTPConnection('127.0.0.1', 12345)
 
     
 def post(client, endpoint, value):
@@ -38,7 +38,8 @@ while True:
     elif gesture == 1:
         post(client, 'setArmStopGo', 'go')
         post(client, 'setWaiting', 'False')
-    
+    print 'Gesture: %s' % gesture
+    print 'Before != 0'
     if gesture != 0:
         initial_gesture = gesture
         while gesture == initial_gesture:
@@ -46,7 +47,7 @@ while True:
             time.sleep(0.1)
             gesture = get(client, 'getGesture')
         continue
-
+    print 'After continue'
     arm_status = get(client, 'getArmCurrentStatus')
     print(arm_status)
     if arm_status['stopgo'] == 'stop':

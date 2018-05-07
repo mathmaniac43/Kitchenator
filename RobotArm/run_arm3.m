@@ -3,9 +3,9 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 0;     % set to 1 to connect to kitchenNET server
+use_connection = 1;     % set to 1 to connect to kitchenNET server
 use_virtual = 0;
-use_robot = 0;          % set to 1 to connect to Cyton viewer
+use_robot = 1;          % set to 1 to connect to Cyton viewer
 
 trajectories_computed = 0;
 
@@ -22,9 +22,9 @@ options.Timeout = 1e3;
 options_post = weboptions('RequestMethod', 'post');
 options_post.Timeout = 1e3;
 
-% minivie_path = 'C:\git\minivie';
+minivie_path = 'C:\git\minivie';
 % minivie_path = 'C:\Users\Nick\repos\minivie';
-minivie_path = '/Users/yehby1/Documents/MATLAB/Human Robot Interaction/minivie';
+% minivie_path = '/Users/yehby1/Documents/MATLAB/Human Robot Interaction/minivie';
 
 %% Initialization
 % Load robotics toolbox model & initial poses
@@ -73,7 +73,8 @@ if (use_robot)
             disp('Get position timeout');
         end
     end
-    robot.update(robot.q_measured(1:7));
+    robot.update(robot.q_measured);
+    robot.move(robot.q_neutral, robot.gripper_current);
 else
     
     robot.update(robot.q_neutral);

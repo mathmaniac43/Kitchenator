@@ -37,7 +37,7 @@ classdef PoseManager < handle
                 y = double(pose_msg.y);
                 z = double(pose_msg.z);
                 yaw = double(pose_msg.yaw);
-                T = SE3(transl(x, y, z))*SE3.oa([0,0,1],rotz(yaw)*[1,0,0]');
+                T = SE3(transl(x, y, z))*SE3.oa([0,0,1],rotz(rad2deg(yaw))*[1,0,0]');
                 Ta = T*SE3(transl(T.R*[0 -0.03 0]'));
             end
         end
@@ -77,9 +77,12 @@ classdef PoseManager < handle
            obj.blue_traj = obj.compute_trajectory('blue', robot);
         end
         
-        function [q] = compute_trajectory(obj, robot)
-            color = robot.target_color;
+        function [q] = compute_trajectory(obj, bot)
+            color = bot.target_color;
             [T,Ta] = obj.get_pose(color);
+            if (isempty(Ta))
+                return
+            end
             q1 = [];
             q2 = [];
             q3 = [];
@@ -91,24 +94,27 @@ classdef PoseManager < handle
               [q0,n,T0] = get_best_guess(Ta.t);
 %             q1a = robot.sim_robot.ikcon(standby2approach,q0);
 %              q1a = robot.sim_robot.ikine(standby2approach,'q0',q0);
-             q1a = robot.sim_robot.jtraj(robot.T_neutral,Ta,obj.N_steps,'q0',q0);
+             
+             q1a = bot.sim_robot.jtraj(bot.T_neutral,Ta,obj.N_steps,'q0',q0);
+%              q1_1 = bot.sim_robot.ikine(Ta, 'q0', q0);
+%              q1a = jtraj(bot.q_neutral, q1_1, obj.N_steps);
 
              approach2grab = ctraj(Ta, T, obj.N_steps);
 %              [q0,n,T0] = get_best_guess(T.t);
              q0 = q1a(end,:);
-             q1b = robot.sim_robot.ikcon(approach2grab,q0);
+             q1b = bot.sim_robot.ikcon(approach2grab,q0);
 %             q1b = robot.sim_robot.ikine(approach2grab,'q0',q0);
 %             q1b = robot.sim_robot.jtraj(Ta,T,obj.N_steps);
             
             if (~isempty(q1b))
-                T1a = robot.sim_robot.fkine(q1a(end,:));
-                T1b = robot.sim_robot.fkine(q1b(1,:));
-                q1ab = robot.sim_robot.jtraj(T1a,T1b, 5,'q0',q0);
+                T1a = bot.sim_robot.fkine(q1a(end,:));
+                T1b = bot.sim_robot.fkine(q1b(1,:));
+                q1ab = bot.sim_robot.jtraj(T1a,T1b, 5,'q0',q0);
             else
                 q1ab = [];
             end
             
-            q_neutral = jtraj(robot.q_neutral,q1a(1,:),5);
+            q_neutral = jtraj(bot.q_neutral,q1a(1,:),5);
             q1 = [q_neutral;q1a; q1ab; q1b];
 
 %             goal2predump = ctraj(T, obj.T_bowl, obj.N_steps);
@@ -116,16 +122,16 @@ classdef PoseManager < handle
             q0 = q1(end,:);
 %             q2 = robot.sim_robot.ikcon(goal2predump,q0);
 %             q2 = robot.sim_robot.ikcon(goal2predump,'q0',q0);
-            q2 = robot.sim_robot.jtraj(T,obj.T_bowl,obj.N_steps,'q0',q0);
+            q2 = bot.sim_robot.jtraj(T,obj.T_bowl,obj.N_steps,'q0',q0);
             
             % TODO: fix this orientation
 %             q_dump = [q2(end,1:6) 0];
 %             q3 = jtraj(q2(end,:),q_dump,10);
             q7_angle = q2(end,7);
-            if strcmp(robot.target_color, 'blue')
+            if strcmp(bot.target_color, 'blue')
 %                 T_dump = obj.T_bowl*SE3(trotz(pi/2));
                 q_dump = [q2(end,1:6) q7_angle+pi/2];
-            elseif strcmp(robot.target_color,'purple')
+            elseif strcmp(bot.target_color,'purple')
 %                 T_dump = obj.T_bowl;
                 q_dump = [q2(end,1:6) q7_angle-pi/2];
             end
@@ -146,18 +152,18 @@ classdef PoseManager < handle
             
             q = cell(1,4);
             % Go to landingpad - open -> close
-            q{1} = [q1 robot.open_gripper*ones(size(q1,1),1); q1(end,:) robot.closed_gripper];
+            q{1} = [q1 bot.open_gripper*ones(size(q1,1),1); q1(end,:) bot.closed_gripper];
             % Go to bowl - close
             q{2} = [q12;q2];
-            q{2} = [q{2} robot.closed_gripper*ones(size(q{2},1),1)];
+            q{2} = [q{2} bot.closed_gripper*ones(size(q{2},1),1)];
             % Dump bowl - close
-            q{3} = [q3 robot.closed_gripper*ones(size(q3,1),1)];
+            q{3} = [q3 bot.closed_gripper*ones(size(q3,1),1)];
             % Undump & standby
             q{4} = [flipud(q{3}); flipud(q{2}); flipud(q{1})];
             disp(['Time to plan: ',string(toc)]);
-            if (strcmp(robot.target_color, 'blue'))
+            if (strcmp(bot.target_color, 'blue'))
                 obj.blue_traj = q;
-            elseif (strcmp(robot.target_color, 'purple'))
+            elseif (strcmp(bot.target_color, 'purple'))
                 obj.purple_traj = q;
             end
         end
