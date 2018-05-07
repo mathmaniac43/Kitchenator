@@ -38,7 +38,7 @@ classdef PoseManager < handle
                 z = double(pose_msg.z);
                 yaw = double(pose_msg.yaw);
                 T = SE3(transl(x, y, z))*SE3.oa([0,0,1],rotz(rad2deg(yaw))*[1,0,0]');
-                Ta = T*SE3(transl(T.R*[0 -0.03 0]'));
+                Ta = T*SE3(transl(T.R*[0 -0.02 0]'));
             end
         end
         
@@ -78,6 +78,7 @@ classdef PoseManager < handle
         end
         
         function [q] = compute_trajectory(obj, bot)
+            cyton_poses
             color = bot.target_color;
             [T,Ta] = obj.get_pose(color);
             if (isempty(Ta))
@@ -88,10 +89,17 @@ classdef PoseManager < handle
             q3 = [];
             q12 = [];
             tic
+            if strcmp(bot.target_color,  'purple')
+                q0a = get_pose_by_name('left_side', cyton_joint_map);
+                q0b = get_pose_by_name('left_bowl', cyton_joint_map);
+            elseif strcmp(bot.target_color, 'blue')
+                q0a = get_pose_by_name('right_side', cyton_joint_map);
+                q0b = get_pose_by_name('right_bowl', cyton_joint_map);
+            end
 %             options = optimoptions('fmincon');
 %             options.ConstraintTolerance = 1e-4;
 %              standby2approach = ctraj(robot.T_neutral, Ta, obj.N_steps);
-              [q0,n,T0] = get_best_guess(Ta.t);
+%               [q0,n,T0] = get_best_guess(T.t);
 %             q1a = robot.sim_robot.ikcon(standby2approach,q0);
 %              q1a = robot.sim_robot.ikine(standby2approach,'q0',q0);
              
@@ -105,9 +113,9 @@ classdef PoseManager < handle
 %              q1b = bot.sim_robot.ikcon(approach2grab,q0);
 %             q1b = robot.sim_robot.ikine(approach2grab,'q0',q0);
 %             q1b = robot.sim_robot.jtraj(Ta,T,obj.N_steps);
-            
-            q1a = bot.sim_robot.ikcon(T, q0);
-            q1b = bot.sim_robot.ikcon(Ta, q1a);
+             q1b = bot.sim_robot.ikcon(T, q0a);
+            q1a = bot.sim_robot.ikcon(Ta, q0a);
+           
             
 %             if (~isempty(q1b))
 %                 T1a = bot.sim_robot.fkine(q1a(end,:));
@@ -115,19 +123,32 @@ classdef PoseManager < handle
 %                 q1ab = bot.sim_robot.jtraj(T1a,T1b, 5,'q0',q0);
 %                 q1ab = jtraj(q1a(end,:),q1b(1,:), 5,'q0',q0);
 %             else
-                q1ab = [];
+%                 q1ab = [];
 %             end
 %                    q_neutral = jtraj(bot.q_neutral,q1a(1,:),5);
             
-            q1 = [bot.q_neutral;q1a; q1ab; q1b];
-
-%             goal2predump = ctraj(T, obj.T_bowl, obj.N_steps);
+            q1 = [bot.q_neutral;q1a; q1b];
+                
+           
+            height = 0:0.03:0.12;
+%              c_traj = cell(size(height));
+%              q_traj = cell(size(height));
+%              diffs = cell(size(height));
+%             for i = 1:length(height)
+%                 
+%                 T_above = T.T+transl(0,0,height(i));
+%                 T_above = SE3(T_above);
+%                 c_traj{i} = [ctraj(T, T_above, 10) ctraj(T_above, obj.T_bowl, obj.N_steps)];
+%                 q_traj{i} = bot.sim_robot.ikcon(c_traj{i},q0b);
+%                 figure; plot( q_traj{i} );
+%                 max(diff( q_traj{i} ));
+%             end
 %              [q0,n,T0] = get_best_guess(obj.T_bowl.t);
             q0 = q1(end,:);
-%             q2 = robot.sim_robot.ikcon(goal2predump,q0);
-%             q2 = robot.sim_robot.ikcon(goal2predump,'q0',q0);
+              q2 = bot.sim_robot.ikine(obj.T_bowl);
+%              q2 = bot.sim_robot.ikine(goal2predump,'q0',q0,'mask', [0 0 0 1 1 1]);
 %             q2 = bot.sim_robot.jtraj(T,obj.T_bowl,obj.N_steps,'q0',q0);
-            q2 = bot.sim_robot.ikcon(obj.T_bowl,q1b);
+%             q2 = bot.sim_robot.ikcon(obj.T_bowl,q0b);
             
             % TODO: fix this orientation
 %             q_dump = [q2(end,1:6) 0];
@@ -143,7 +164,7 @@ classdef PoseManager < handle
 %             q3 = robot.sim_robot.jtraj(obj.T_bowl,T_dump,obj.N_steps,'q0',q2(end,:));
             q3 = jtraj(q2(end,:), q_dump,10);
             
-            q12 = jtraj(q1(end,:), q2(1,:),10);
+%             q12 = jtraj(q1(end,:), q2(1,:),10);
             
             if (isempty(q1))
                 q1 = zeros(1,7);
@@ -159,7 +180,7 @@ classdef PoseManager < handle
             % Go to landingpad - open -> close
             q{1} = [q1 bot.open_gripper*ones(size(q1,1),1); q1(end,:) bot.closed_gripper];
             % Go to bowl - close
-            q{2} = [q12;q2];
+            q{2} = [q2];
             q{2} = [q{2} bot.closed_gripper*ones(size(q{2},1),1)];
             % Dump bowl - close
             q{3} = [q3 bot.closed_gripper*ones(size(q3,1),1)];

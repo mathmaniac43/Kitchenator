@@ -24,13 +24,20 @@
 
 links = [
     % Create the robot using RVC tools
-    Revolute('d', 0.2,  'a', 0,     'alpha', pi/2,  'offset', pi/2);
-    Revolute('d', 0,    'a', 0.135, 'alpha', -pi/2, 'offset', pi/2);
-    Revolute('d', 0,    'a', 0.125, 'alpha', pi/2,  'offset', 0);
-    Revolute('d', 0,    'a', 0.125, 'alpha', -pi/2, 'offset', 0);
+%     Revolute('d', 0.2,  'a', 0,     'alpha', pi/2,  'offset', pi/2);
+%     Revolute('d', 0,    'a', 0.135, 'alpha', -pi/2, 'offset', pi/2); %
+%     Revolute('d', 0,    'a', 0.125, 'alpha', pi/2,  'offset', 0);
+%     Revolute('d', 0,    'a', 0.125, 'alpha', -pi/2, 'offset', 0);
+%     Revolute('d', 0,    'a', 0.135, 'alpha', pi/2,  'offset', 0);
+%     Revolute('d', 0,    'a', 0,     'alpha', pi/2,  'offset', pi/2);
+%     Revolute('d', 0.09, 'a', 0,     'alpha', pi/2,     'offset', 0);
+    Revolute('d', 0.195,  'a', 0,     'alpha', pi/2,  'offset', pi/2);
+    Revolute('d', 0,    'a', 0.135, 'alpha', -pi/2, 'offset', pi/2); %
+    Revolute('d', 0,    'a', 0.13, 'alpha', pi/2,  'offset', 0);
+    Revolute('d', 0,    'a', 0.135, 'alpha', -pi/2, 'offset', 0);
     Revolute('d', 0,    'a', 0.135, 'alpha', pi/2,  'offset', 0);
     Revolute('d', 0,    'a', 0,     'alpha', pi/2,  'offset', pi/2);
-    Revolute('d', 0.09, 'a', 0,     'alpha', pi/2,     'offset', 0);
+    Revolute('d', 0.115, 'a', 0,     'alpha', pi/2,     'offset', 0);
 ];
 
 cyton = SerialLink(links, 'name', 'Cyton Epsilon 1500', 'manufacturer', 'Cyton');

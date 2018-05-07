@@ -3,7 +3,7 @@ clc; clear all; close all;
 
 %% Options
 N_steps = 30;           % number of steps in trajectory
-use_connection = 0;     % set to 1 to connect to kitchenNET server
+use_connection = 1;     % set to 1 to connect to kitchenNET server
 use_virtual = 0;
 use_robot = 1;          % set to 1 to connect to Cyton viewer
 
@@ -128,7 +128,7 @@ while (1)
         robot.stopgo = goal_msg.stopgo;
     end
     
-    robot.target_state = 'planning';
+%     robot.target_state = 'planning';
     % 
     if (strcmp(robot.target_state,'standby') && strcmp(robot.current_state,'standby'))
         disp('Standby...');
@@ -137,7 +137,12 @@ while (1)
         if ~isempty(robot.target_color)
             pose_manager.compute_trajectory(robot);
             disp(['Finished computing trajectory to ',robot.target_color]);
-            robot.current_state = 'planning';
+             q = pose_manager.get_trajectory(robot.target_color);
+             if ~isempty(q)
+                robot.current_state = 'planning';
+             else
+                 warning('Could not plan path');
+             end
         else
             disp('Waiting on color goal...');
         end

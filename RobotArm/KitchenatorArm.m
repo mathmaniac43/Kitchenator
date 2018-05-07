@@ -84,7 +84,7 @@ classdef KitchenatorArm < handle
         function [done, qdiff] = update(obj, joints)
             
             if(exist('joints','var'))
-                obj.q_current = joints;
+                obj.q_current = [joints obj.open_gripper];
             end
             
             [reached, qdiff] = obj.measure();

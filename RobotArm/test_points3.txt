@@ -1,13 +1,14 @@
-{"targetState": "standby", "color":"purple", "stopgo":"go"}
-{"targetState": "planning", "color":"purple", "stopgo":"go"}
-{"targetState": "grab", "color":"purple", "stopgo":"go"}
-{"targetState": "pre_dump", "color":"purple", "stopgo":"go"}
-{"targetState": "dump", "color":"purple", "stopgo":"go"}
-{"targetState": "standby", "color":"purple", "stopgo":"go"}
 {"targetState": "standby", "color":"blue", "stopgo":"go"}
 {"targetState": "planning", "color":"blue", "stopgo":"go"}
 {"targetState": "grab", "color":"blue", "stopgo":"go"}
 {"targetState": "pre_dump", "color":"blue", "stopgo":"go"}
 {"targetState": "dump", "color":"blue", "stopgo":"go"}
 {"targetState": "standby", "color":"blue", "stopgo":"go"}
+
+{"targetState": "standby", "color":"purple", "stopgo":"go"}
+{"targetState": "planning", "color":"purple", "stopgo":"go"}
+{"targetState": "grab", "color":"purple", "stopgo":"go"}
+{"targetState": "pre_dump", "color":"purple", "stopgo":"go"}
+{"targetState": "dump", "color":"purple", "stopgo":"go"}
+{"targetState": "standby", "color":"purple", "stopgo":"go"}
 
