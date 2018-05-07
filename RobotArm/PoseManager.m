@@ -95,35 +95,39 @@ classdef PoseManager < handle
 %             q1a = robot.sim_robot.ikcon(standby2approach,q0);
 %              q1a = robot.sim_robot.ikine(standby2approach,'q0',q0);
              
-             q1a = bot.sim_robot.jtraj(bot.T_neutral,Ta,obj.N_steps,'q0',q0);
+%              q1a = bot.sim_robot.jtraj(bot.T_neutral,Ta,obj.N_steps,'q0',q0);
 %              q1_1 = bot.sim_robot.ikine(Ta, 'q0', q0);
 %              q1a = jtraj(bot.q_neutral, q1_1, obj.N_steps);
 
-             approach2grab = ctraj(Ta, T, obj.N_steps);
+%              approach2grab = ctraj(Ta, T, obj.N_steps);
 %              [q0,n,T0] = get_best_guess(T.t);
-             q0 = q1a(end,:);
-             q1b = bot.sim_robot.ikcon(approach2grab,q0);
+%              q0 = q1a(end,:);
+%              q1b = bot.sim_robot.ikcon(approach2grab,q0);
 %             q1b = robot.sim_robot.ikine(approach2grab,'q0',q0);
 %             q1b = robot.sim_robot.jtraj(Ta,T,obj.N_steps);
             
-            if (~isempty(q1b))
+            q1a = bot.sim_robot.ikcon(T, q0);
+            q1b = bot.sim_robot.ikcon(Ta, q1a);
+            
+%             if (~isempty(q1b))
 %                 T1a = bot.sim_robot.fkine(q1a(end,:));
 %                 T1b = bot.sim_robot.fkine(q1b(1,:));
 %                 q1ab = bot.sim_robot.jtraj(T1a,T1b, 5,'q0',q0);
-                q1ab = jtraj(q1a(end,:),q1b(1,:), 5,'q0',q0);
-            else
+%                 q1ab = jtraj(q1a(end,:),q1b(1,:), 5,'q0',q0);
+%             else
                 q1ab = [];
-            end
+%             end
+%                    q_neutral = jtraj(bot.q_neutral,q1a(1,:),5);
             
-            q_neutral = jtraj(bot.q_neutral,q1a(1,:),5);
-            q1 = [q_neutral;q1a; q1ab; q1b];
+            q1 = [bot.q_neutral;q1a; q1ab; q1b];
 
 %             goal2predump = ctraj(T, obj.T_bowl, obj.N_steps);
 %              [q0,n,T0] = get_best_guess(obj.T_bowl.t);
             q0 = q1(end,:);
 %             q2 = robot.sim_robot.ikcon(goal2predump,q0);
 %             q2 = robot.sim_robot.ikcon(goal2predump,'q0',q0);
-            q2 = bot.sim_robot.jtraj(T,obj.T_bowl,obj.N_steps,'q0',q0);
+%             q2 = bot.sim_robot.jtraj(T,obj.T_bowl,obj.N_steps,'q0',q0);
+            q2 = bot.sim_robot.ikcon(obj.T_bowl,q1b);
             
             % TODO: fix this orientation
 %             q_dump = [q2(end,1:6) 0];
