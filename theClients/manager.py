@@ -56,6 +56,10 @@ while True:
     waiting = get(client, 'getWaiting')
     print 'Waiting? %s' % waiting
     if waiting == 'True':
+        #if targetState == arm_status['currentState'] and targetState == "dump":
+        #    post(client, 'setArmTargetState', 'standby')
+        #    post(client, 'setGoalIngredient', 'invalid')
+        #else:
         print 'Currently waiting for "go" command.'
         continue
     
@@ -85,6 +89,8 @@ while True:
             
         if targetState == 'grab' or targetState == 'pre_dump':
             post(client, 'setWaiting', 'True')
+        elif targetState == 'dump':
+            post(client, 'setWaiting', 'False')
             
     else: # manager is waiting for arm to catch up to target.
     

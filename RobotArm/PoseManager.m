@@ -143,9 +143,15 @@ classdef PoseManager < handle
 %                 figure; plot( q_traj{i} );
 %                 max(diff( q_traj{i} ));
 %             end
-%              [q0,n,T0] = get_best_guess(obj.T_bowl.t);
+             [q0,n,T0] = get_best_guess(obj.T_bowl.t);
             q0 = q1(end,:);
               q2 = bot.sim_robot.ikine(obj.T_bowl);
+              if(isempty(q2))
+                  q2 = bot.sim_robot.ikine(obj.T_bowl,'q0',q0);
+              end
+              if(isempty(q2))
+                  q2 = bot.sim_robot.ikcon(obj.T_bowl);
+              end
 %              q2 = bot.sim_robot.ikine(goal2predump,'q0',q0,'mask', [0 0 0 1 1 1]);
 %             q2 = bot.sim_robot.jtraj(T,obj.T_bowl,obj.N_steps,'q0',q0);
 %             q2 = bot.sim_robot.ikcon(obj.T_bowl,q0b);

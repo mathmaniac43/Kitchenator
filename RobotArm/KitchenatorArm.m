@@ -12,7 +12,7 @@ classdef KitchenatorArm < handle
         target_state
         target_color
         stopgo
-        
+        last_color
         T_goal
         T_approach
         q_goal
