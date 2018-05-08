@@ -52,7 +52,7 @@ classdef PoseManager < handle
                 T = obj.blue_goal;
                 Ta = obj.blue_approach;
             elseif strcmp(name, 'orange')
-                T = obj.bowl_goal;
+                T = obj.T_bowl;
             end
         end
         

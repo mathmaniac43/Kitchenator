@@ -125,7 +125,9 @@ while (1)
     if (~isempty(goal_msg))
         robot.target_state = goal_msg.targetState;
         robot.target_color = string(goal_msg.color);
-        robot.last_color = robot.target_color;
+        if (~isempty(robot.target_color))
+            robot.last_color = robot.target_color;
+        end
         robot.stopgo = goal_msg.stopgo;
     end
     
@@ -137,8 +139,8 @@ while (1)
         disp('Planning...');
         if ~isempty(robot.target_color)
             pose_manager.compute_trajectory(robot);
-            disp(['Finished computing trajectory to ',robot.target_color]);
-             q = pose_manager.get_trajectory(robot.target_color);
+            disp(['Finished computing trajectory to ',robot.last_color]);
+             q = pose_manager.get_trajectory(robot.last_color);
              if ~isempty(q)
                 robot.current_state = 'planning';
              else

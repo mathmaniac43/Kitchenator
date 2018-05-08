@@ -1,6 +1,6 @@
 from enum import Enum
 
-WORKING = False
+WORKING = True
 
 if WORKING:
     KSTATE = Enum('standby', 'grab', 'deliver', 'rehome')
