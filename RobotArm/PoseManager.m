@@ -192,6 +192,7 @@ classdef PoseManager < handle
             q{3} = [q3 bot.closed_gripper*ones(size(q3,1),1)];
             % Undump & standby
             q{4} = [flipud(q{3}); flipud(q{2}); flipud(q{1})];
+            q{3} = [q{3}; q{4}];
             disp(['Time to plan: ',string(toc)]);
             if (strcmp(bot.target_color, 'blue'))
                 obj.blue_traj = q;
