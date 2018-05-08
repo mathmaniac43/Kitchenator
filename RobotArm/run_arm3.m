@@ -153,7 +153,11 @@ while (1)
     else
         % Get current trajectory
         q = pose_manager.get_trajectory(robot.target_color);
-        
+        if (isempty(q{1}))
+            q = pose_manager.compute_trajectory(robot);
+             robot.t_step = 1;
+              robot.update();
+        end
         if strcmp(robot.target_state,'grab')
             robot.idx = 1;
         elseif strcmp(robot.target_state,'pre_dump')
@@ -190,6 +194,9 @@ while (1)
                 robot.T_current
                 tr2rpy(robot.T_current)
                 robot.t_step = 1;
+                if ((strcmp(robot.target_state, 'dump')))
+                    robot.current_state = 'standby';
+                end
                 if (~strcmp(robot.target_state, 'planning'))
                     robot.current_state = robot.target_state;
                 end
