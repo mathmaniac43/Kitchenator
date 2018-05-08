@@ -125,6 +125,7 @@ while (1)
     if (~isempty(goal_msg))
         robot.target_state = goal_msg.targetState;
         robot.target_color = string(goal_msg.color);
+        robot.last_color = robot.target_color;
         robot.stopgo = goal_msg.stopgo;
     end
     
