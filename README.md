@@ -27,35 +27,45 @@ The arm client's GET request returns JSON of the form:
 Checks KitchenNet for a desired target, if so updates the target arm pose
 
 ### Voice Command Client:
-For now, this client will set the goal ingredient at random from the available ingredients based on a keypress.
-COMIN REAL SOON
+This MATLAB client listens on a button press and performs a cross-correlation against the known ingredients. It assigns the closest match to the user's speech as the goal ingredient.
 https://github.com/mozilla/DeepSpeech#using-the-python-package
 
 ### Visual User Interface:
-Access at localhost:8080/userInterface
+Access at 127.0.0.1:12346/userInterface
+Access debug screen at 127.0.0.1:12346/uiDebug
 Future will include 
 ## Dependencies:
 * Python2
 * bottle
 * httplib (Python3 requires a switch to http.client)
 * json
-* pygame (for keyboard input to the voiceClient)
 
 
 ## Operation
 
 In one terminal, run: 
 > python KitchenNet/kitchennet.py
+NOTE: If there are errors relating to the 'Enum' class, go to KitchenNet/callHandlers/states.py and change 'WORKING' from True to False (or vice versa)
 
-In another terminal, run:
-> python theClients/deepStateClient.py
+In separate terminals, run:
+> python theClients/manager.py
+> python vision/k_webcam_shapes.py
+Note: You need the orange/black - green/black - purple/black color tags displayed for this client to begin transmitting data to the server
 
-This script will check the state every 250 ms, and update from standby to seek if the goal ingredient is not 'none'
+In separate MATLAB instances, run:
+> Myo/MyoGestureDetection.m
 
-In another terminal, run:
-> python theClients/voiceClient.py
+and 
 
-This script will set the goal ingredient to 'nutmeg' or 'ketamine' when you press any key. Pygame is a little glitchy, so it stops taking key inputs when you click outside of the terminal in which voiceClient.py is running.
+> theClients/voiceClient
+
+and 
+
+> RobotArm/run_arm3
+
+
+
+Locate the MATLAB window spawned by voice client, click on it, speak the ingredient ("nutmeg" or "flour"), and then sit back and watch the magic happen.
 
 
 ### States that the arm client can receive:
